@@ -156,7 +156,7 @@
     background: #1a1a1a;
     border: 1px solid #333;
     padding: 1.5rem;
-    border-radius: 4px;
+    border-radius: 25px;
     text-decoration: none;
     color: inherit;
     transition: border-color 0.2s;
@@ -182,7 +182,7 @@
     padding: 0.25rem 0.5rem;
     background: #222;
     border: 1px solid #444;
-    border-radius: 2px;
+    border-radius: 25px;
     font-size: 0.75rem;
     color: #aaa;
     text-transform: uppercase;
@@ -197,7 +197,7 @@
     font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
-    border-radius: 2px;
+    border-radius: 25px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
@@ -223,7 +223,7 @@
     background: #1a1a1a;
     border: 1px solid #333;
     padding: 2rem;
-    border-radius: 4px;
+    border-radius: 25px;
     max-width: 500px;
     width: 90%;
   }
@@ -250,7 +250,7 @@
     background: #0a0a0a;
     border: 1px solid #333;
     color: #e0e0e0;
-    border-radius: 2px;
+    border-radius: 25px;
     font-size: 1rem;
   }
 
