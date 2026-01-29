@@ -353,16 +353,17 @@
   }
 
   nav a {
-    color: #888;
+    color: rgba(255, 255, 255, 0.5);
     text-decoration: none;
+    font-size: 0.9rem;
   }
 
   nav a:hover {
-    color: #ccc;
+    color: rgba(255, 255, 255, 0.8);
   }
 
   header {
-    border-bottom: 2px solid #333;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 1.5rem;
     margin-bottom: 2rem;
   }
@@ -376,19 +377,20 @@
 
   .description {
     margin: 1rem 0 0 0;
-    color: #888;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
   }
 
   .module-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    background: #222;
-    border: 1px solid #444;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 25px;
-    font-size: 0.75rem;
-    color: #aaa;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.6);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
   }
 
   .adherence-card {
@@ -494,8 +496,8 @@
   }
 
   .empty {
-    color: #666;
-    font-style: italic;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.85rem;
   }
 
   .targets-list {
@@ -519,8 +521,8 @@
 
   .target-metric,
   .target-deadline {
-    font-size: 0.85rem;
-    color: #888;
+    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.45);
     margin-top: 0.25rem;
   }
 
@@ -540,8 +542,8 @@
 
   .method-card p {
     margin: 0;
-    color: #888;
-    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
   }
 
   .actions-list {
@@ -566,8 +568,8 @@
   }
 
   .action-date {
-    color: #888;
-    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
   }
 
   .action-details {
@@ -577,13 +579,13 @@
   }
 
   .action-value {
-    color: #fff;
-    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
   }
 
   .action-notes {
-    color: #888;
-    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
   }
 
   .action-status {

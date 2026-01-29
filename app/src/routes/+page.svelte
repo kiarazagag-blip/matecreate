@@ -92,8 +92,8 @@
     margin: 0;
     padding: 0;
     font-family: 'Nebulica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #0a0a0a;
-    color: #e0e0e0;
+    background: #1a1a1c;
+    color: rgba(255, 255, 255, 0.85);
   }
 
   .container {
