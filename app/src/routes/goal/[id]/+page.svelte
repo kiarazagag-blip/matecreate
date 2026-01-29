@@ -507,46 +507,48 @@
   }
 
   .target-item {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 1rem;
+    background: linear-gradient(135deg, #c4b5fd 0%, #a78bfa 100%);
+    border: none;
+    padding: 1.25rem;
     border-radius: 25px;
+    box-shadow: 0 2px 8px rgba(167, 139, 250, 0.15);
   }
 
   .target-item h3 {
     margin: 0 0 0.5rem 0;
     font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.85);
+    color: #1a1a1c;
     font-weight: 500;
   }
 
   .target-metric,
   .target-deadline {
     font-size: 0.75rem;
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(0, 0, 0, 0.65);
     margin-top: 0.25rem;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   .method-card {
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 1rem;
+    background: linear-gradient(135deg, #fca5a5 0%, #fb923c 100%);
+    border: none;
+    padding: 1.25rem;
     border-radius: 25px;
+    box-shadow: 0 2px 8px rgba(251, 146, 60, 0.15);
   }
 
   .method-card h3 {
     margin: 0 0 0.5rem 0;
     font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.85);
+    color: #1a1a1c;
     font-weight: 500;
   }
 
   .method-card p {
     margin: 0;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.7);
     font-size: 0.8rem;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   .actions-list {
@@ -559,21 +561,22 @@
     grid-template-columns: 80px 1fr 40px;
     gap: 1rem;
     align-items: center;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+    border: none;
+    padding: 1rem 1.25rem;
     border-radius: 25px;
+    box-shadow: 0 2px 8px rgba(252, 211, 77, 0.15);
   }
 
   .action-item.missed {
-    border-color: #441111;
-    background: #1a0a0a;
+    background: linear-gradient(135deg, #fca5a5 0%, #ef4444 100%);
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
   }
 
   .action-date {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.65);
     font-size: 0.8rem;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   .action-details {
@@ -583,19 +586,20 @@
   }
 
   .action-value {
-    color: rgba(255, 255, 255, 0.9);
-    font-weight: 400;
+    color: #1a1a1c;
+    font-weight: 500;
   }
 
   .action-notes {
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(0, 0, 0, 0.65);
     font-size: 0.8rem;
-    font-weight: 300;
+    font-weight: 400;
   }
 
   .action-status {
     text-align: center;
     font-size: 1.25rem;
+    color: #1a1a1c;
   }
 
   .modal {
