@@ -25,36 +25,74 @@ interface Database {
   reviews: Review[];
 }
 
+// In-memory fallback for serverless environments
+let inMemoryDb: Database | null = null;
+let useFileSystem = true;
+
 // Initialize database
 function initDb(): Database {
-  if (!fs.existsSync(DB_PATH)) {
-    fs.mkdirSync(DB_PATH, { recursive: true });
+  // If we already determined filesystem isn't available, use in-memory
+  if (!useFileSystem) {
+    if (!inMemoryDb) {
+      inMemoryDb = getInitialData();
+    }
+    return inMemoryDb;
   }
 
-  if (!fs.existsSync(DB_FILE)) {
-    const initialData: Database = {
-      users: [
-        {
-          id: 'user-1',
-          username: 'apex',
-          createdAt: new Date().toISOString()
-        }
-      ],
-      goals: [],
-      targets: [],
-      methods: [],
-      actions: [],
-      reviews: []
-    };
-    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
-    return initialData;
-  }
+  // Try to use filesystem
+  try {
+    if (!fs.existsSync(DB_PATH)) {
+      fs.mkdirSync(DB_PATH, { recursive: true });
+    }
 
-  return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+    if (!fs.existsSync(DB_FILE)) {
+      const initialData = getInitialData();
+      fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2));
+      return initialData;
+    }
+
+    return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+  } catch (error) {
+    // Filesystem not available (serverless environment)
+    console.warn('Filesystem not available, using in-memory storage');
+    useFileSystem = false;
+    if (!inMemoryDb) {
+      inMemoryDb = getInitialData();
+    }
+    return inMemoryDb;
+  }
+}
+
+function getInitialData(): Database {
+  return {
+    users: [
+      {
+        id: 'user-1',
+        username: 'apex',
+        createdAt: new Date().toISOString()
+      }
+    ],
+    goals: [],
+    targets: [],
+    methods: [],
+    actions: [],
+    reviews: []
+  };
 }
 
 function saveDb(data: Database): void {
-  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+  if (!useFileSystem) {
+    inMemoryDb = data;
+    return;
+  }
+
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+  } catch (error) {
+    console.warn('Failed to write to filesystem, switching to in-memory storage');
+    useFileSystem = false;
+    inMemoryDb = data;
+  }
 }
 
 function generateId(prefix: string): string {
