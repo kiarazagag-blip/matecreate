@@ -338,6 +338,10 @@
 </div>
 
 <style>
+  :global(body) {
+    font-family: 'Nebulica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
   .container {
     max-width: 1200px;
     margin: 0 auto;
@@ -366,7 +370,8 @@
   h1 {
     margin: 0 0 0.5rem 0;
     font-size: 2rem;
-    color: #fff;
+    color: #e8e8e8;
+    font-weight: 500;
   }
 
   .description {
@@ -387,20 +392,21 @@
   }
 
   .adherence-card {
-    background: #1a1a1a;
-    border: 1px solid #333;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     padding: 2rem 1.5rem;
     margin-bottom: 2rem;
     border-radius: 25px;
+    backdrop-filter: blur(10px);
   }
 
   .adherence-label {
-    color: #888;
-    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.75rem;
     margin-bottom: 1.5rem;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
-    font-weight: 500;
+    letter-spacing: 0.15em;
+    font-weight: 400;
     text-align: center;
   }
 
@@ -416,7 +422,8 @@
   }
 
   .progress-ring-bg {
-    opacity: 0.3;
+    opacity: 0.15;
+    stroke: rgba(255, 255, 255, 0.1);
   }
 
   .progress-ring-fill {
@@ -433,18 +440,19 @@
 
   .adherence-value {
     font-size: 2.5rem;
-    font-weight: 700;
-    color: #fff;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.9);
     margin: 0;
     line-height: 1;
   }
 
   .adherence-status {
-    color: #aaa;
-    font-size: 0.75rem;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.7rem;
     margin-top: 0.5rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
+    font-weight: 300;
   }
 
   .section {
@@ -460,26 +468,29 @@
 
   .section-header h2 {
     margin: 0;
-    font-size: 1.25rem;
-    color: #fff;
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.85);
     line-height: 1.4;
+    font-weight: 500;
   }
 
   button {
-    background: #fff;
-    color: #000;
-    border: none;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     padding: 0.5rem 1rem;
-    font-size: 0.85rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 400;
     cursor: pointer;
     border-radius: 25px;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
+    transition: all 0.2s ease;
   }
 
   button:hover {
-    background: #e0e0e0;
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.25);
   }
 
   .empty {
@@ -493,16 +504,17 @@
   }
 
   .target-item {
-    background: #1a1a1a;
-    border: 1px solid #333;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     padding: 1rem;
     border-radius: 25px;
   }
 
   .target-item h3 {
     margin: 0 0 0.5rem 0;
-    font-size: 1rem;
-    color: #fff;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
   }
 
   .target-metric,
@@ -513,16 +525,17 @@
   }
 
   .method-card {
-    background: #1a1a1a;
-    border: 1px solid #333;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     padding: 1rem;
     border-radius: 25px;
   }
 
   .method-card h3 {
     margin: 0 0 0.5rem 0;
-    font-size: 1rem;
-    color: #fff;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
   }
 
   .method-card p {
@@ -541,8 +554,8 @@
     grid-template-columns: 80px 1fr 40px;
     gap: 1rem;
     align-items: center;
-    background: #1a1a1a;
-    border: 1px solid #333;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     padding: 0.75rem 1rem;
     border-radius: 25px;
   }
@@ -592,25 +605,27 @@
   }
 
   .modal-content {
-    background: #1a1a1a;
-    border: 1px solid #333;
+    background: rgba(20, 20, 20, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 2rem;
     border-radius: 25px;
     max-width: 500px;
     width: 90%;
+    backdrop-filter: blur(20px);
   }
 
   .modal-content h2 {
     margin: 0 0 1.5rem 0;
-    color: #fff;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
   }
 
   form label {
     display: block;
     margin-bottom: 1rem;
-    color: #ccc;
-    font-size: 0.9rem;
-    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-weight: 400;
   }
 
   form input,
@@ -620,11 +635,11 @@
     width: 100%;
     padding: 0.75rem;
     margin-top: 0.5rem;
-    background: #0a0a0a;
-    border: 1px solid #333;
-    color: #e0e0e0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.85);
     border-radius: 25px;
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-family: inherit;
     box-sizing: border-box;
   }
@@ -637,7 +652,8 @@
   form select:focus,
   form textarea:focus {
     outline: none;
-    border-color: #666;
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.08);
   }
 
   .checkbox-label {
@@ -663,12 +679,12 @@
 
   .form-actions button[type='button'] {
     background: transparent;
-    color: #888;
-    border: 1px solid #333;
+    color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
   .form-actions button[type='button']:hover {
-    background: #1a1a1a;
-    color: #ccc;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.7);
   }
 </style>
