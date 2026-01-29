@@ -103,28 +103,28 @@
   <div class="adherence-card">
     <div class="adherence-label">Adherence (Last 7 Days)</div>
     <div class="progress-container">
-      <svg class="progress-ring" width="160" height="160" viewBox="0 0 160 160">
+      <svg class="progress-ring" width="180" height="180" viewBox="0 0 180 180">
         <circle
           class="progress-ring-bg"
-          cx="80"
-          cy="80"
-          r="70"
+          cx="90"
+          cy="90"
+          r="82"
           fill="none"
           stroke="#1a1a1a"
-          stroke-width="12"
+          stroke-width="10"
         />
         <circle
           class="progress-ring-fill"
-          cx="80"
-          cy="80"
-          r="70"
+          cx="90"
+          cy="90"
+          r="82"
           fill="none"
           stroke="#f4e5a8"
-          stroke-width="12"
+          stroke-width="10"
           stroke-linecap="round"
-          stroke-dasharray="439.82"
-          stroke-dashoffset={439.82 - (439.82 * data.adherence) / 100}
-          transform="rotate(-90 80 80)"
+          stroke-dasharray="515.22"
+          stroke-dashoffset={515.22 - (515.22 * data.adherence) / 100}
+          transform="rotate(-90 90 90)"
         />
       </svg>
       <div class="progress-center">
@@ -379,6 +379,7 @@
     margin: 1rem 0 0 0;
     color: rgba(255, 255, 255, 0.5);
     font-size: 0.9rem;
+    font-weight: 300;
   }
 
   .module-badge {
@@ -441,8 +442,8 @@
   }
 
   .adherence-value {
-    font-size: 2.5rem;
-    font-weight: 500;
+    font-size: 2.8rem;
+    font-weight: 400;
     color: rgba(255, 255, 255, 0.9);
     margin: 0;
     line-height: 1;
@@ -524,6 +525,7 @@
     font-size: 0.75rem;
     color: rgba(255, 255, 255, 0.45);
     margin-top: 0.25rem;
+    font-weight: 300;
   }
 
   .method-card {
@@ -544,6 +546,7 @@
     margin: 0;
     color: rgba(255, 255, 255, 0.5);
     font-size: 0.8rem;
+    font-weight: 300;
   }
 
   .actions-list {
@@ -570,6 +573,7 @@
   .action-date {
     color: rgba(255, 255, 255, 0.5);
     font-size: 0.8rem;
+    font-weight: 300;
   }
 
   .action-details {
@@ -580,12 +584,13 @@
 
   .action-value {
     color: rgba(255, 255, 255, 0.9);
-    font-weight: 500;
+    font-weight: 400;
   }
 
   .action-notes {
     color: rgba(255, 255, 255, 0.5);
     font-size: 0.8rem;
+    font-weight: 300;
   }
 
   .action-status {
