@@ -102,15 +102,43 @@
 
   <div class="adherence-card">
     <div class="adherence-label">Adherence (Last 7 Days)</div>
-    <div class="adherence-value">{data.adherence}%</div>
-    <div class="adherence-status">
-      {#if data.adherence >= 80}
-        On track
-      {:else if data.adherence >= 60}
-        Needs adjustment
-      {:else}
-        Below threshold
-      {/if}
+    <div class="progress-container">
+      <svg class="progress-ring" width="160" height="160" viewBox="0 0 160 160">
+        <circle
+          class="progress-ring-bg"
+          cx="80"
+          cy="80"
+          r="70"
+          fill="none"
+          stroke="#1a1a1a"
+          stroke-width="12"
+        />
+        <circle
+          class="progress-ring-fill"
+          cx="80"
+          cy="80"
+          r="70"
+          fill="none"
+          stroke="#f4e5a8"
+          stroke-width="12"
+          stroke-linecap="round"
+          stroke-dasharray="439.82"
+          stroke-dashoffset={439.82 - (439.82 * data.adherence) / 100}
+          transform="rotate(-90 80 80)"
+        />
+      </svg>
+      <div class="progress-center">
+        <div class="adherence-value">{data.adherence}%</div>
+        <div class="adherence-status">
+          {#if data.adherence >= 80}
+            On track
+          {:else if data.adherence >= 60}
+            Needs adjustment
+          {:else}
+            Below threshold
+          {/if}
+        </div>
+      </div>
     </div>
   </div>
 
@@ -361,29 +389,62 @@
   .adherence-card {
     background: #1a1a1a;
     border: 1px solid #333;
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
     margin-bottom: 2rem;
-    text-align: center;
+    border-radius: 25px;
   }
 
   .adherence-label {
     color: #888;
-    font-size: 0.9rem;
-    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  .progress-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .progress-ring {
+    display: block;
+  }
+
+  .progress-ring-bg {
+    opacity: 0.3;
+  }
+
+  .progress-ring-fill {
+    transition: stroke-dashoffset 0.5s ease;
+  }
+
+  .progress-center {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 
   .adherence-value {
-    font-size: 3rem;
+    font-size: 2.5rem;
     font-weight: 700;
     color: #fff;
-    margin: 0.5rem 0;
+    margin: 0;
+    line-height: 1;
   }
 
   .adherence-status {
-    color: #888;
-    font-size: 0.9rem;
+    color: #aaa;
+    font-size: 0.75rem;
+    margin-top: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
   .section {
