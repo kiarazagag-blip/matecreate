@@ -564,6 +564,7 @@
     border-radius: 25px;
     font-size: 1rem;
     font-family: inherit;
+    box-sizing: border-box;
   }
 
   form input:focus,

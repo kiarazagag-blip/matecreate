@@ -252,6 +252,7 @@
     color: #e0e0e0;
     border-radius: 25px;
     font-size: 1rem;
+    box-sizing: border-box;
   }
 
   form input:focus,
