@@ -108,7 +108,7 @@
           class="progress-ring-bg"
           cx="90"
           cy="90"
-          r="82"
+          r="70"
           fill="none"
           stroke="#1a1a1a"
           stroke-width="10"
@@ -117,13 +117,13 @@
           class="progress-ring-fill"
           cx="90"
           cy="90"
-          r="82"
+          r="70"
           fill="none"
           stroke="#f4e5a8"
           stroke-width="10"
           stroke-linecap="round"
-          stroke-dasharray="515.22"
-          stroke-dashoffset={515.22 - (515.22 * data.adherence) / 100}
+          stroke-dasharray="439.82"
+          stroke-dashoffset={439.82 - (439.82 * data.adherence) / 100}
           transform="rotate(-90 90 90)"
         />
       </svg>
