@@ -393,7 +393,7 @@
   .section-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: baseline;
     margin-bottom: 1rem;
   }
 
@@ -401,6 +401,7 @@
     margin: 0;
     font-size: 1.25rem;
     color: #fff;
+    line-height: 1.4;
   }
 
   button {
@@ -565,6 +566,10 @@
     font-size: 1rem;
     font-family: inherit;
     box-sizing: border-box;
+  }
+
+  form select {
+    padding-right: 2.5rem;
   }
 
   form input:focus,

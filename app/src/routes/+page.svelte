@@ -255,6 +255,10 @@
     box-sizing: border-box;
   }
 
+  form select {
+    padding-right: 2.5rem;
+  }
+
   form input:focus,
   form select:focus {
     outline: none;
