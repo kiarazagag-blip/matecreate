@@ -103,32 +103,32 @@
   <div class="adherence-card">
     <div class="adherence-label">Adherence (Last 7 Days)</div>
     <div class="progress-container">
-      <svg class="progress-ring" width="180" height="180" viewBox="0 0 180 180">
+      <svg class="progress-ring" width="240" height="240" viewBox="0 0 240 240">
         <circle
           class="progress-ring-bg"
-          cx="90"
-          cy="90"
-          r="70"
+          cx="120"
+          cy="120"
+          r="100"
           fill="none"
           stroke="#1a1a1a"
-          stroke-width="10"
+          stroke-width="8"
         />
         <circle
           class="progress-ring-fill"
-          cx="90"
-          cy="90"
-          r="70"
+          cx="120"
+          cy="120"
+          r="100"
           fill="none"
           stroke="#f4e5a8"
-          stroke-width="10"
+          stroke-width="8"
           stroke-linecap="round"
-          stroke-dasharray="439.82"
-          stroke-dashoffset={439.82 - (439.82 * data.adherence) / 100}
-          transform="rotate(-90 90 90)"
+          stroke-dasharray="628.32"
+          stroke-dashoffset={628.32 - (628.32 * data.adherence) / 100}
+          transform="rotate(-90 120 120)"
         />
       </svg>
       <div class="progress-center">
-        <div class="adherence-value">{data.adherence}%</div>
+        <div class="adherence-value">{data.adherence}<span class="percent-sign">%</span></div>
         <div class="adherence-status">
           {#if data.adherence >= 80}
             On track
@@ -154,15 +154,26 @@
       <div class="targets-list">
         {#each data.targets as target}
           <div class="target-item">
-            <h3>{target.name}</h3>
-            {#if target.targetValue}
-              <div class="target-metric">
-                Goal: {target.targetValue} {target.measurementUnit}
-              </div>
-            {/if}
-            {#if target.deadline}
-              <div class="target-deadline">By: {formatDate(target.deadline)}</div>
-            {/if}
+            <div class="card-header">
+              <h3>{target.name}</h3>
+              <button class="icon-button" title="Edit target">⋯</button>
+            </div>
+            <div class="card-details">
+              {#if target.targetValue}
+                <div class="detail-row">
+                  <span class="detail-icon">→</span>
+                  <span class="detail-label">Target</span>
+                  <span class="detail-value">{target.targetValue} {target.measurementUnit}</span>
+                </div>
+              {/if}
+              {#if target.deadline}
+                <div class="detail-row">
+                  <span class="detail-icon">⏱</span>
+                  <span class="detail-label">Deadline</span>
+                  <span class="detail-value">{formatDate(target.deadline)}</span>
+                </div>
+              {/if}
+            </div>
           </div>
         {/each}
       </div>
@@ -180,8 +191,11 @@
     {:else}
       {#each data.methods as method}
         <div class="method-card">
-          <h3>{method.name}</h3>
-          <p>{method.description}</p>
+          <div class="card-header">
+            <h3>{method.name}</h3>
+            <button class="icon-button" title="Edit method">⋯</button>
+          </div>
+          <div class="method-description">{method.description}</div>
         </div>
       {/each}
     {/if}
@@ -199,14 +213,19 @@
       <div class="actions-list">
         {#each data.actions as action}
           <div class="action-item" class:missed={!action.completed}>
-            <div class="action-date">{formatDate(action.date)}</div>
-            <div class="action-details">
-              {#if action.value}
-                <span class="action-value">{action.value} {action.unit || ''}</span>
-              {/if}
-              {#if action.notes}
-                <span class="action-notes">{action.notes}</span>
-              {/if}
+            <div class="action-main">
+              <div class="action-date">{formatDate(action.date)}</div>
+              <div class="action-info">
+                {#if action.value}
+                  <div class="detail-row">
+                    <span class="detail-icon">↓</span>
+                    <span class="action-value">{action.value} {action.unit || ''}</span>
+                  </div>
+                {/if}
+                {#if action.notes}
+                  <div class="action-notes">{action.notes}</div>
+                {/if}
+              </div>
             </div>
             <div class="action-status">
               {action.completed ? '✓' : '✗'}
@@ -442,17 +461,23 @@
   }
 
   .adherence-value {
-    font-size: 2.8rem;
-    font-weight: 400;
+    font-size: 3.5rem;
+    font-weight: 300;
     color: rgba(255, 255, 255, 0.9);
     margin: 0;
     line-height: 1;
   }
 
+  .percent-sign {
+    font-size: 2rem;
+    font-weight: 300;
+    opacity: 0.6;
+  }
+
   .adherence-status {
     color: rgba(255, 255, 255, 0.4);
-    font-size: 0.7rem;
-    margin-top: 0.5rem;
+    font-size: 0.65rem;
+    margin-top: 0.75rem;
     text-transform: uppercase;
     letter-spacing: 0.1em;
     font-weight: 300;
@@ -514,19 +539,72 @@
     box-shadow: 0 2px 8px rgba(167, 139, 250, 0.15);
   }
 
-  .target-item h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 0.95rem;
-    color: #1a1a1c;
-    font-weight: 500;
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
   }
 
-  .target-metric,
-  .target-deadline {
-    font-size: 0.75rem;
-    color: rgba(0, 0, 0, 0.65);
-    margin-top: 0.25rem;
+  .card-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    color: #1a1a1c;
+    font-weight: 500;
+    flex: 1;
+  }
+
+  .icon-button {
+    background: rgba(0, 0, 0, 0.1);
+    border: none;
+    color: rgba(0, 0, 0, 0.5);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0;
+    transition: all 0.2s ease;
+    line-height: 1;
+  }
+
+  .icon-button:hover {
+    background: rgba(0, 0, 0, 0.15);
+    color: rgba(0, 0, 0, 0.7);
+  }
+
+  .card-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .detail-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .detail-icon {
+    font-size: 0.9rem;
+    opacity: 0.6;
+    width: 16px;
+    display: inline-block;
+  }
+
+  .detail-label {
+    color: rgba(0, 0, 0, 0.5);
     font-weight: 400;
+    min-width: 60px;
+  }
+
+  .detail-value {
+    color: #1a1a1c;
+    font-weight: 500;
   }
 
   .method-card {
@@ -537,18 +615,11 @@
     box-shadow: 0 2px 8px rgba(251, 146, 60, 0.15);
   }
 
-  .method-card h3 {
-    margin: 0 0 0.5rem 0;
-    font-size: 0.95rem;
-    color: #1a1a1c;
-    font-weight: 500;
-  }
-
-  .method-card p {
-    margin: 0;
+  .method-description {
     color: rgba(0, 0, 0, 0.7);
-    font-size: 0.8rem;
-    font-weight: 400;
+    font-size: 0.85rem;
+    font-weight: 300;
+    line-height: 1.5;
   }
 
   .actions-list {
@@ -557,9 +628,8 @@
   }
 
   .action-item {
-    display: grid;
-    grid-template-columns: 80px 1fr 40px;
-    gap: 1rem;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
     background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
     border: none;
@@ -573,33 +643,43 @@
     box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
   }
 
-  .action-date {
-    color: rgba(0, 0, 0, 0.65);
-    font-size: 0.8rem;
-    font-weight: 400;
-  }
-
-  .action-details {
+  .action-main {
     display: flex;
     gap: 1rem;
     align-items: center;
+    flex: 1;
+  }
+
+  .action-date {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 0.75rem;
+    font-weight: 400;
+    min-width: 60px;
+  }
+
+  .action-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
   }
 
   .action-value {
     color: #1a1a1c;
     font-weight: 500;
+    font-size: 0.9rem;
   }
 
   .action-notes {
-    color: rgba(0, 0, 0, 0.65);
-    font-size: 0.8rem;
-    font-weight: 400;
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 0.75rem;
+    font-weight: 300;
   }
 
   .action-status {
     text-align: center;
     font-size: 1.25rem;
     color: #1a1a1c;
+    margin-left: 1rem;
   }
 
   .modal {
