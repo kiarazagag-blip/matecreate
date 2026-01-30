@@ -63,6 +63,7 @@
     const res = await fetch('/api/actions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
         goalId: data.goal.id,
         targetId: selectedTargetId || undefined,
@@ -81,11 +82,12 @@
 
   async function saveTarget() {
     const url = editingTargetId ? `/api/targets/${editingTargetId}` : '/api/targets';
-    const method = editingTargetId ? 'PUT' : 'POST';
+    const method = editingTargetId ? 'PATCH' : 'POST';
 
     const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
         goalId: data.goal.id,
         name: targetName,
@@ -105,7 +107,8 @@
     if (!confirm('Delete this target?')) return;
 
     const res = await fetch(`/api/targets/${targetId}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      credentials: 'include'
     });
 
     if (res.ok) {
@@ -115,11 +118,12 @@
 
   async function saveMethod() {
     const url = editingMethodId ? `/api/methods/${editingMethodId}` : '/api/methods';
-    const method = editingMethodId ? 'PUT' : 'POST';
+    const method = editingMethodId ? 'PATCH' : 'POST';
 
     const res = await fetch(url, {
       method,
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
         goalId: data.goal.id,
         name: methodName,
@@ -137,7 +141,8 @@
     if (!confirm('Delete this method?')) return;
 
     const res = await fetch(`/api/methods/${methodId}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      credentials: 'include'
     });
 
     if (res.ok) {
