@@ -153,17 +153,19 @@
   }
 
   .goal-card {
-    background: #1a1a1a;
-    border: 1px solid #333;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     padding: 1.5rem;
     border-radius: 25px;
     text-decoration: none;
     color: inherit;
-    transition: border-color 0.2s;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(10px);
   }
 
   .goal-card:hover {
-    border-color: #666;
+    border-color: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
   }
 
   .goal-card h3 {
@@ -180,30 +182,32 @@
   .module-badge {
     display: inline-block;
     padding: 0.25rem 0.5rem;
-    background: #222;
-    border: 1px solid #444;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 25px;
-    font-size: 0.75rem;
-    color: #aaa;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.6);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
   }
 
   button {
-    background: #fff;
-    color: #000;
-    border: none;
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     padding: 0.75rem 1.5rem;
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 400;
     cursor: pointer;
     border-radius: 25px;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.1em;
+    transition: all 0.2s ease;
   }
 
   button:hover {
-    background: #e0e0e0;
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.25);
   }
 
   .modal {
@@ -220,25 +224,27 @@
   }
 
   .modal-content {
-    background: #1a1a1a;
-    border: 1px solid #333;
+    background: rgba(20, 20, 20, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 2rem;
     border-radius: 25px;
     max-width: 500px;
     width: 90%;
+    backdrop-filter: blur(20px);
   }
 
   .modal-content h2 {
     margin: 0 0 1.5rem 0;
-    color: #fff;
+    color: rgba(255, 255, 255, 0.9);
+    font-weight: 500;
   }
 
   form label {
     display: block;
     margin-bottom: 1rem;
-    color: #ccc;
-    font-size: 0.9rem;
-    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-weight: 400;
   }
 
   form input,
@@ -247,11 +253,12 @@
     width: 100%;
     padding: 0.75rem;
     margin-top: 0.5rem;
-    background: #0a0a0a;
-    border: 1px solid #333;
-    color: #e0e0e0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.85);
     border-radius: 25px;
-    font-size: 1rem;
+    font-size: 0.95rem;
+    font-family: inherit;
     box-sizing: border-box;
   }
 
@@ -262,7 +269,8 @@
   form input:focus,
   form select:focus {
     outline: none;
-    border-color: #666;
+    border-color: rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.08);
   }
 
   .form-actions {
@@ -277,12 +285,12 @@
 
   .form-actions button[type='button'] {
     background: transparent;
-    color: #888;
-    border: 1px solid #333;
+    color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
   .form-actions button[type='button']:hover {
-    background: #1a1a1a;
-    color: #ccc;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.7);
   }
 </style>
