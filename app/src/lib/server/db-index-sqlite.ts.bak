@@ -1,14 +1,16 @@
 /**
- * Apex Virtus Database - Main Export (Prisma)
+ * Apex Virtus Database - Main Export
  * Single entry point for all database operations
  */
 
-// Export all functions from Prisma implementation
-export * from './db-prisma';
-export * from './db-prisma-actions';
+// Export all types and functions from db modules
+export * from './db';
+export * from './db-actions';
+export * from './db-utils';
 
 // Re-export organized namespace
-import { user, session, purpose, goal, method, target, subTarget, prisma } from './db-prisma';
+import { user, session } from './db';
+import { purpose, goal, method, target, subTarget } from './db';
 import {
   actionDefinition,
   actionAttempt,
@@ -19,7 +21,8 @@ import {
   reviewAnswer,
   computeVerdict,
   computeMagnitude
-} from './db-prisma-actions';
+} from './db-actions';
+import { cleanupExpiredSessions, closeDb } from './db-utils';
 
 // Organized namespace export
 export const apexDb = {
@@ -51,8 +54,9 @@ export const apexDb = {
   question,
   reviewAnswer,
 
-  // Prisma client
-  prisma
+  // Utils
+  cleanupExpiredSessions,
+  close: closeDb
 };
 
 export default apexDb;
