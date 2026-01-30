@@ -150,6 +150,30 @@ export function createTarget(data: CreateTargetData): Target {
   return target;
 }
 
+export function updateTarget(id: string, data: Partial<CreateTargetData>): Target | null {
+  const db = initDb();
+  const index = db.targets.findIndex((t) => t.id === id);
+  if (index === -1) return null;
+
+  const target = db.targets[index];
+  db.targets[index] = {
+    ...target,
+    name: data.name ?? target.name,
+    description: data.description ?? target.description,
+    measurementUnit: data.measurementUnit ?? target.measurementUnit,
+    targetValue: data.targetValue ?? target.targetValue,
+    deadline: data.deadline ?? target.deadline
+  };
+  saveDb(db);
+  return db.targets[index];
+}
+
+export function deleteTarget(id: string): void {
+  const db = initDb();
+  db.targets = db.targets.filter((t) => t.id !== id);
+  saveDb(db);
+}
+
 // Methods
 export function getMethodsByGoal(goalId: string): Method[] {
   const db = initDb();
@@ -169,6 +193,27 @@ export function createMethod(data: CreateMethodData): Method {
   db.methods.push(method);
   saveDb(db);
   return method;
+}
+
+export function updateMethod(id: string, data: Partial<CreateMethodData>): Method | null {
+  const db = initDb();
+  const index = db.methods.findIndex((m) => m.id === id);
+  if (index === -1) return null;
+
+  const method = db.methods[index];
+  db.methods[index] = {
+    ...method,
+    name: data.name ?? method.name,
+    description: data.description ?? method.description
+  };
+  saveDb(db);
+  return db.methods[index];
+}
+
+export function deleteMethod(id: string): void {
+  const db = initDb();
+  db.methods = db.methods.filter((m) => m.id !== id);
+  saveDb(db);
 }
 
 // Actions

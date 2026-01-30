@@ -6,6 +6,8 @@
   let showActionForm = false;
   let showTargetForm = false;
   let showMethodForm = false;
+  let editingTargetId: string | null = null;
+  let editingMethodId: string | null = null;
 
   // Action form
   let actionDate = new Date().toISOString().split('T')[0];
@@ -24,6 +26,38 @@
   // Method form
   let methodName = '';
   let methodDescription = '';
+
+  function openEditTarget(target: any) {
+    editingTargetId = target.id;
+    targetName = target.name;
+    targetUnit = target.measurementUnit;
+    targetValue = target.targetValue?.toString() || '';
+    targetDeadline = target.deadline || '';
+    showTargetForm = true;
+  }
+
+  function openEditMethod(method: any) {
+    editingMethodId = method.id;
+    methodName = method.name;
+    methodDescription = method.description;
+    showMethodForm = true;
+  }
+
+  function resetTargetForm() {
+    editingTargetId = null;
+    targetName = '';
+    targetUnit = '';
+    targetValue = '';
+    targetDeadline = '';
+    showTargetForm = false;
+  }
+
+  function resetMethodForm() {
+    editingMethodId = null;
+    methodName = '';
+    methodDescription = '';
+    showMethodForm = false;
+  }
 
   async function logAction() {
     const res = await fetch('/api/actions', {
@@ -45,9 +79,12 @@
     }
   }
 
-  async function createTarget() {
-    const res = await fetch('/api/targets', {
-      method: 'POST',
+  async function saveTarget() {
+    const url = editingTargetId ? `/api/targets/${editingTargetId}` : '/api/targets';
+    const method = editingTargetId ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         goalId: data.goal.id,
@@ -59,19 +96,48 @@
     });
 
     if (res.ok) {
+      resetTargetForm();
       window.location.reload();
     }
   }
 
-  async function createMethod() {
-    const res = await fetch('/api/methods', {
-      method: 'POST',
+  async function deleteTarget(targetId: string) {
+    if (!confirm('Delete this target?')) return;
+
+    const res = await fetch(`/api/targets/${targetId}`, {
+      method: 'DELETE'
+    });
+
+    if (res.ok) {
+      window.location.reload();
+    }
+  }
+
+  async function saveMethod() {
+    const url = editingMethodId ? `/api/methods/${editingMethodId}` : '/api/methods';
+    const method = editingMethodId ? 'PUT' : 'POST';
+
+    const res = await fetch(url, {
+      method,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         goalId: data.goal.id,
         name: methodName,
         description: methodDescription
       })
+    });
+
+    if (res.ok) {
+      resetMethodForm();
+      window.location.reload();
+    }
+  }
+
+  async function deleteMethod(methodId: string) {
+    if (!confirm('Delete this method?')) return;
+
+    const res = await fetch(`/api/methods/${methodId}`, {
+      method: 'DELETE'
     });
 
     if (res.ok) {
@@ -156,7 +222,7 @@
           <div class="target-item">
             <div class="card-header">
               <h3>{target.name}</h3>
-              <button class="icon-button" title="Edit target">⋯</button>
+              <button class="icon-button" on:click={() => openEditTarget(target)} title="Edit target">⋯</button>
             </div>
             <div class="card-details">
               {#if target.targetValue}
@@ -193,7 +259,7 @@
         <div class="method-card">
           <div class="card-header">
             <h3>{method.name}</h3>
-            <button class="icon-button" title="Edit method">⋯</button>
+            <button class="icon-button" on:click={() => openEditMethod(method)} title="Edit method">⋯</button>
           </div>
           <div class="method-description">{method.description}</div>
         </div>
@@ -288,10 +354,10 @@
   {/if}
 
   {#if showTargetForm}
-    <div class="modal" on:click={() => (showTargetForm = false)}>
+    <div class="modal" on:click={resetTargetForm}>
       <div class="modal-content" on:click|stopPropagation>
-        <h2>New Target</h2>
-        <form on:submit|preventDefault={createTarget}>
+        <h2>{editingTargetId ? 'Edit Target' : 'New Target'}</h2>
+        <form on:submit|preventDefault={saveTarget}>
           <label>
             Target Name
             <input type="text" bind:value={targetName} required placeholder="e.g., Squat 405 lbs" />
@@ -318,8 +384,11 @@
           </label>
 
           <div class="form-actions">
-            <button type="button" on:click={() => (showTargetForm = false)}>Cancel</button>
-            <button type="submit">Create</button>
+            {#if editingTargetId}
+              <button type="button" class="delete-btn" on:click={() => deleteTarget(editingTargetId)}>Delete</button>
+            {/if}
+            <button type="button" on:click={resetTargetForm}>Cancel</button>
+            <button type="submit">{editingTargetId ? 'Save' : 'Create'}</button>
           </div>
         </form>
       </div>
@@ -327,10 +396,10 @@
   {/if}
 
   {#if showMethodForm}
-    <div class="modal" on:click={() => (showMethodForm = false)}>
+    <div class="modal" on:click={resetMethodForm}>
       <div class="modal-content" on:click|stopPropagation>
-        <h2>Define Method</h2>
-        <form on:submit|preventDefault={createMethod}>
+        <h2>{editingMethodId ? 'Edit Method' : 'Define Method'}</h2>
+        <form on:submit|preventDefault={saveMethod}>
           <label>
             Method Name
             <input type="text" bind:value={methodName} required placeholder="e.g., 5/3/1" />
@@ -347,8 +416,11 @@
           </label>
 
           <div class="form-actions">
-            <button type="button" on:click={() => (showMethodForm = false)}>Cancel</button>
-            <button type="submit">Define</button>
+            {#if editingMethodId}
+              <button type="button" class="delete-btn" on:click={() => deleteMethod(editingMethodId)}>Delete</button>
+            {/if}
+            <button type="button" on:click={resetMethodForm}>Cancel</button>
+            <button type="submit">{editingMethodId ? 'Save' : 'Define'}</button>
           </div>
         </form>
       </div>
@@ -777,5 +849,17 @@
   .form-actions button[type='button']:hover {
     background: rgba(255, 255, 255, 0.05);
     color: rgba(255, 255, 255, 0.7);
+  }
+
+  .delete-btn {
+    background: rgba(239, 68, 68, 0.15) !important;
+    color: rgba(239, 68, 68, 0.9) !important;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  }
+
+  .delete-btn:hover {
+    background: rgba(239, 68, 68, 0.25) !important;
+    color: rgba(239, 68, 68, 1) !important;
+    border-color: rgba(239, 68, 68, 0.5) !important;
   }
 </style>
