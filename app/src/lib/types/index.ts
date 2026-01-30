@@ -3,6 +3,7 @@
 export interface User {
   id: string;
   username: string;
+  password: string; // In production, this would be hashed
   createdAt: string;
 }
 

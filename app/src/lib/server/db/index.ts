@@ -65,13 +65,7 @@ function initDb(): Database {
 
 function getInitialData(): Database {
   return {
-    users: [
-      {
-        id: 'user-1',
-        username: 'apex',
-        createdAt: new Date().toISOString()
-      }
-    ],
+    users: [],
     goals: [],
     targets: [],
     methods: [],
@@ -97,6 +91,41 @@ function saveDb(data: Database): void {
 
 function generateId(prefix: string): string {
   return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+// Users & Auth
+export function createUser(username: string, password: string): User {
+  const db = initDb();
+
+  // Check if username exists
+  const existing = db.users.find((u) => u.username.toLowerCase() === username.toLowerCase());
+  if (existing) {
+    throw new Error('Username already exists');
+  }
+
+  const user: User = {
+    id: generateId('user'),
+    username,
+    password, // In production, hash this
+    createdAt: new Date().toISOString()
+  };
+
+  db.users.push(user);
+  saveDb(db);
+  return user;
+}
+
+export function authenticateUser(username: string, password: string): User | null {
+  const db = initDb();
+  const user = db.users.find(
+    (u) => u.username.toLowerCase() === username.toLowerCase() && u.password === password
+  );
+  return user || null;
+}
+
+export function getUserById(id: string): User | null {
+  const db = initDb();
+  return db.users.find((u) => u.id === id) || null;
 }
 
 // Goals

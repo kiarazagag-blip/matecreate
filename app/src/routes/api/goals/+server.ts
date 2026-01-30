@@ -4,7 +4,11 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
   const data = await request.json();
-  const userId = 'user-1'; // Hardcoded for now
+  const userId = data.userId;
+
+  if (!userId) {
+    return json({ error: 'User ID required' }, { status: 400 });
+  }
 
   const goal = createGoal(userId, {
     name: data.name,

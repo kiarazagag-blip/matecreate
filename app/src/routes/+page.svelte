@@ -1,17 +1,43 @@
 <script lang="ts">
-  import type { PageData } from './$types';
+  import { onMount } from 'svelte';
+  import { getUserId, getUsername, logout } from '$lib/auth';
+  import { goto } from '$app/navigation';
+  import type { Goal } from '$lib/types';
 
-  export let data: PageData;
-
+  let goals: Goal[] = [];
+  let username = '';
+  let loading = true;
   let showNewGoalForm = false;
   let newGoalName = '';
   let newGoalModule = 'fitness';
 
+  onMount(async () => {
+    const userId = getUserId();
+    username = getUsername() || '';
+
+    if (!userId) {
+      goto('/auth');
+      return;
+    }
+
+    // Fetch goals
+    const res = await fetch(`/api/goals/${userId}`);
+    if (res.ok) {
+      const data = await res.json();
+      goals = data.goals;
+    }
+    loading = false;
+  });
+
   async function createGoal() {
+    const userId = getUserId();
+    if (!userId) return;
+
     const res = await fetch('/api/goals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
+        userId,
         name: newGoalName,
         moduleType: newGoalModule
       })
@@ -25,12 +51,24 @@
 
 <div class="container">
   <header>
-    <h1>APEX VIRTUS</h1>
-    <p class="tagline">Execution. Data. Responsibility.</p>
+    <div class="header-content">
+      <div>
+        <h1>APEX VIRTUS</h1>
+        <p class="tagline">Execution. Data. Responsibility.</p>
+      </div>
+      {#if username}
+        <div class="user-section">
+          <span class="username">{username}</span>
+          <button class="logout-btn" on:click={logout}>Logout</button>
+        </div>
+      {/if}
+    </div>
   </header>
 
   <main>
-    {#if data.goals.length === 0}
+    {#if loading}
+      <div class="loading">Loading...</div>
+    {:else if goals.length === 0}
       <div class="empty-state">
         <p>No goals defined.</p>
         <p>Choose a method. Apply it fully. Track reality.</p>
@@ -43,7 +81,7 @@
       </div>
 
       <div class="goals-grid">
-        {#each data.goals as goal}
+        {#each goals as goal}
           <a href="/goal/{goal.id}" class="goal-card">
             <h3>{goal.name}</h3>
             <span class="module-badge">{goal.moduleType}</span>
@@ -103,25 +141,65 @@
   }
 
   header {
-    border-bottom: 2px solid #333;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 1rem;
     margin-bottom: 2rem;
+  }
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 
   h1 {
     margin: 0;
     font-size: 2.5rem;
     font-weight: 700;
-    color: #fff;
+    color: rgba(255, 255, 255, 0.95);
     letter-spacing: 0.05em;
   }
 
   .tagline {
     margin: 0.5rem 0 0 0;
-    color: #888;
-    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.85rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+    font-weight: 300;
+  }
+
+  .user-section {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .username {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-weight: 400;
+  }
+
+  .logout-btn {
+    background: rgba(239, 68, 68, 0.15);
+    color: rgba(239, 68, 68, 0.9);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    padding: 0.5rem 1rem;
+    font-size: 0.7rem;
+  }
+
+  .logout-btn:hover {
+    background: rgba(239, 68, 68, 0.25);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: rgba(239, 68, 68, 1);
+  }
+
+  .loading {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.9rem;
   }
 
   .empty-state {
