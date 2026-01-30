@@ -60,7 +60,7 @@
 <div class="auth-container">
   <div class="auth-card card">
     <div class="logo-section">
-      <img src="/logo-wordmark.png" alt="APEX" class="logo" />
+      <img src="/logo.png" alt="APEX" class="logo" />
     </div>
 
     <div class="mode-toggle">

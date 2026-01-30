@@ -1,3 +1,69 @@
+/* ABC Social Font Family */
+@font-face {
+  font-family: 'ABC Social';
+  src: url('/fonts/ABCSocial-Hairline-Trial.otf') format('opentype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ABC Social';
+  src: url('/fonts/ABCSocial-Thin-Trial.otf') format('opentype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ABC Social';
+  src: url('/fonts/ABCSocial-Light-Trial.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ABC Social';
+  src: url('/fonts/ABCSocial-Book-Trial.otf') format('opentype');
+  font-weight: 350;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ABC Social';
+  src: url('/fonts/ABCSocial-Regular-Trial.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ABC Social';
+  src: url('/fonts/ABCSocial-Medium-Trial.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ABC Social';
+  src: url('/fonts/ABCSocial-Bold-Trial.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ABC Social';
+  src: url('/fonts/ABCSocial-Black-Trial.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Nebulica Font Family */
 @font-face {
   font-family: 'Nebulica';
   src: url('/fonts/Nebulica-Thin.woff2') format('woff2');

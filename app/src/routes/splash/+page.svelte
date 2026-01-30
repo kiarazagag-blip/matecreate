@@ -24,7 +24,7 @@
 
 <div class="splash">
   <div class="logo-container">
-    <img src="/logo-wordmark.png" alt="APEX" class="logo" />
+    <img src="/logo.png" alt="APEX" class="logo" />
     <div class="tagline">Execution. Data. Responsibility.</div>
   </div>
 </div>

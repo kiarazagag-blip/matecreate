@@ -62,7 +62,7 @@
   <header>
     <div class="header-content">
       <div class="logo-section">
-        <img src="/logo-wordmark.png" alt="APEX" class="logo" />
+        <img src="/logo.png" alt="APEX" class="logo" />
       </div>
       {#if username}
         <div class="user-section">
