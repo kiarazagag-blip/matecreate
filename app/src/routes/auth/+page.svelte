@@ -48,17 +48,20 @@
       loading = false;
     }
   }
-
-  function toggleMode() {
-    mode = mode === 'login' ? 'signup' : 'login';
-    error = '';
-  }
 </script>
 
+<div class="gradient-bg">
+  <div class="gradient-blob blob-1"></div>
+  <div class="gradient-blob blob-2"></div>
+  <div class="gradient-blob blob-3"></div>
+  <div class="gradient-blob blob-4"></div>
+</div>
+
 <div class="auth-container">
-  <div class="auth-card">
-    <h1>APEX VIRTUS</h1>
-    <p class="tagline">Execution. Data. Responsibility.</p>
+  <div class="auth-card card">
+    <div class="logo-section">
+      <img src="/logo-wordmark.png" alt="APEX" class="logo" />
+    </div>
 
     <div class="mode-toggle">
       <button
@@ -84,26 +87,35 @@
     </div>
 
     <form on:submit|preventDefault={handleSubmit}>
-      <label>
-        Username
-        <input type="text" bind:value={username} required autocomplete="username" />
-      </label>
-
-      <label>
-        Password
+      <div class="input-group">
+        <label for="username">Username</label>
         <input
+          id="username"
+          type="text"
+          bind:value={username}
+          required
+          autocomplete="username"
+          placeholder="Enter username"
+        />
+      </div>
+
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input
+          id="password"
           type="password"
           bind:value={password}
           required
           autocomplete={mode === 'login' ? 'current-password' : 'new-password'}
+          placeholder="Enter password"
         />
-      </label>
+      </div>
 
       {#if error}
         <div class="error">{error}</div>
       {/if}
 
-      <button type="submit" disabled={loading}>
+      <button type="submit" class="btn btn-primary submit-btn" disabled={loading}>
         {loading ? 'Processing...' : mode === 'login' ? 'Login' : 'Create Account'}
       </button>
     </form>
@@ -111,144 +123,119 @@
 </div>
 
 <style>
-  :global(body) {
-    margin: 0;
-    padding: 0;
-    font-family: 'Nebulica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #1a1a1c;
-    color: rgba(255, 255, 255, 0.85);
-  }
-
   .auth-container {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 2rem;
+    position: relative;
+    z-index: 1;
   }
 
   .auth-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    padding: 3rem 2.5rem;
-    border-radius: 25px;
-    max-width: 400px;
+    max-width: 420px;
     width: 100%;
+    padding: 3rem 2.5rem;
   }
 
-  h1 {
-    margin: 0 0 0.5rem 0;
-    font-size: 2rem;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.95);
-    letter-spacing: 0.1em;
+  .logo-section {
     text-align: center;
+    margin-bottom: 2.5rem;
   }
 
-  .tagline {
-    margin: 0 0 2rem 0;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.75rem;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    text-align: center;
-    font-weight: 300;
+  .logo {
+    width: 160px;
+    height: auto;
   }
 
   .mode-toggle {
     display: flex;
     gap: 0.5rem;
     margin-bottom: 2rem;
-    background: rgba(255, 255, 255, 0.03);
-    padding: 0.25rem;
-    border-radius: 25px;
+    background: var(--bg-primary);
+    padding: 0.35rem;
+    border-radius: 50px;
   }
 
   .mode-btn {
     flex: 1;
     background: transparent;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
     border: none;
-    padding: 0.75rem 1rem;
-    font-size: 0.75rem;
-    font-weight: 400;
+    padding: 0.85rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
     cursor: pointer;
-    border-radius: 25px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
+    border-radius: 50px;
     transition: all 0.2s ease;
+    font-family: inherit;
   }
 
   .mode-btn.active {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.9);
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
   }
 
   form {
     display: flex;
     flex-direction: column;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 
-  label {
+  .input-group {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.85rem;
-    font-weight: 400;
+  }
+
+  label {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
   }
 
   input {
-    padding: 0.875rem 1rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 25px;
-    color: rgba(255, 255, 255, 0.9);
-    font-size: 0.95rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg-primary);
+    border: 1px solid #e5e5e7;
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 1rem;
     font-family: inherit;
     transition: all 0.2s ease;
   }
 
+  input::placeholder {
+    color: var(--text-tertiary);
+  }
+
   input:focus {
     outline: none;
-    border-color: rgba(255, 255, 255, 0.25);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--text-primary);
+    background: #fafafa;
   }
 
-  button[type='submit'] {
+  .submit-btn {
     margin-top: 0.5rem;
-    padding: 1rem;
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.9);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 25px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    transition: all 0.2s ease;
+    padding: 1.1rem;
+    font-size: 0.95rem;
+    font-weight: 600;
   }
 
-  button[type='submit']:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.18);
-    border-color: rgba(255, 255, 255, 0.25);
-  }
-
-  button[type='submit']:disabled {
+  .submit-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none;
   }
 
   .error {
-    padding: 0.75rem 1rem;
-    background: rgba(239, 68, 68, 0.15);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    border-radius: 25px;
-    color: rgba(239, 68, 68, 0.9);
-    font-size: 0.85rem;
+    padding: 0.85rem 1.25rem;
+    background: #fff5f5;
+    border: 1px solid #feb2b2;
+    border-radius: 12px;
+    color: #c53030;
+    font-size: 0.9rem;
     text-align: center;
   }
 </style>
