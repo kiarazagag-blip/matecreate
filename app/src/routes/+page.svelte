@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { getUserId, getUsername, logout } from '$lib/auth';
+  import { getCurrentUser, logout } from '$lib/auth';
   import { goto } from '$app/navigation';
   import type { Goal } from '$lib/types';
 
@@ -12,32 +12,38 @@
   let newGoalModule = 'fitness';
 
   onMount(async () => {
-    const userId = getUserId();
-    username = getUsername() || '';
+    const user = await getCurrentUser();
 
-    if (!userId) {
+    if (!user) {
       goto('/auth');
       return;
     }
 
+    username = user.username;
+
     // Fetch goals
-    const res = await fetch(`/api/goals/${userId}`);
+    const res = await fetch('/api/goals', {
+      credentials: 'include'
+    });
+
     if (res.ok) {
       const data = await res.json();
       goals = data.goals;
+    } else if (res.status === 401) {
+      // Session expired
+      goto('/auth');
+      return;
     }
+
     loading = false;
   });
 
   async function createGoal() {
-    const userId = getUserId();
-    if (!userId) return;
-
     const res = await fetch('/api/goals', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({
-        userId,
         name: newGoalName,
         moduleType: newGoalModule
       })
@@ -47,6 +53,9 @@
       showNewGoalForm = false;
       newGoalName = '';
       window.location.reload();
+    } else if (res.status === 401) {
+      // Session expired
+      goto('/auth');
     }
   }
 </script>

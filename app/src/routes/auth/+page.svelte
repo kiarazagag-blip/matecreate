@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { onMount } from 'svelte';
+  import { getCurrentUser, clearUserCache } from '$lib/auth';
 
   let mode: 'login' | 'signup' = 'login';
   let username = '';
@@ -8,10 +9,10 @@
   let error = '';
   let loading = false;
 
-  onMount(() => {
+  onMount(async () => {
     // Redirect if already logged in
-    const userId = localStorage.getItem('userId');
-    if (userId) {
+    const user = await getCurrentUser();
+    if (user) {
       goto('/');
     }
   });
@@ -26,6 +27,7 @@
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include cookies
         body: JSON.stringify({ username, password })
       });
 
@@ -37,9 +39,8 @@
         return;
       }
 
-      // Store user data
-      localStorage.setItem('userId', data.userId);
-      localStorage.setItem('username', data.username);
+      // Clear user cache to force refetch on next page
+      clearUserCache();
 
       // Redirect to home
       goto('/');
