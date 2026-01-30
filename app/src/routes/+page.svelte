@@ -88,14 +88,6 @@
 </div>
 
 <style>
-  :global(body) {
-    margin: 0;
-    padding: 0;
-    font-family: 'Nebulica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #1a1a1c;
-    color: rgba(255, 255, 255, 0.85);
-  }
-
   .container {
     max-width: 1200px;
     margin: 0 auto;
