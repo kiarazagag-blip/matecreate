@@ -1,0 +1,300 @@
+// Apex Virtus Prisma Schema
+// Execution + Optimization Framework
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// AUTHENTICATION & USERS
+// ============================================================================
+
+model User {
+  id           String    @id @default(cuid())
+  username     String    @unique
+  passwordHash String
+  createdAt    DateTime  @default(now())
+
+  // Relations
+  sessions     Session[]
+  purposes     Purpose[]
+  goals        Goal[]
+  tools        Tool[]
+  assets       Asset[]
+
+  @@map("users")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("sessions")
+}
+
+// ============================================================================
+// APEX VIRTUS CORE ARCHITECTURE
+// ============================================================================
+
+model Purpose {
+  id          String    @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  archivedAt  DateTime?
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goals Goal[]
+
+  @@index([userId])
+  @@map("purposes")
+}
+
+model Goal {
+  id          String    @id @default(cuid())
+  userId      String
+  purposeId   String?
+  moduleType  String
+  name        String
+  description String?
+  status      String    @default("active") // active | paused | completed | archived
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  archivedAt  DateTime?
+
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  purpose Purpose? @relation(fields: [purposeId], references: [id], onDelete: SetNull)
+
+  methods           Method[]
+  targets           Target[]
+  actionDefinitions ActionDefinition[]
+  actionAttempts    ActionAttempt[]
+  reviews           Review[]
+  tools             Tool[]
+  assets            Asset[]
+
+  @@index([userId])
+  @@index([purposeId])
+  @@map("goals")
+}
+
+model Method {
+  id          String    @id @default(cuid())
+  goalId      String
+  name        String
+  description String?
+  status      String    @default("active") // active | abandoned
+  createdAt   DateTime  @default(now())
+  abandonedAt DateTime?
+
+  goal Goal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@index([goalId])
+  @@map("methods")
+}
+
+model Target {
+  id              String    @id @default(cuid())
+  goalId          String
+  name            String
+  description     String?
+  measurementUnit String?
+  targetValue     Float?
+  deadline        DateTime?
+  createdAt       DateTime  @default(now())
+  completedAt     DateTime?
+
+  goal       Goal        @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  subTargets SubTarget[]
+
+  actionDefinitions ActionDefinition[]
+
+  @@index([goalId])
+  @@map("targets")
+}
+
+model SubTarget {
+  id              String    @id @default(cuid())
+  targetId        String
+  name            String
+  description     String?
+  measurementUnit String?
+  targetValue     Float?
+  deadline        DateTime?
+  createdAt       DateTime  @default(now())
+  completedAt     DateTime?
+
+  target Target @relation(fields: [targetId], references: [id], onDelete: Cascade)
+
+  actionDefinitions ActionDefinition[]
+
+  @@index([targetId])
+  @@map("sub_targets")
+}
+
+// ============================================================================
+// ACTION SYSTEM (DEFINITION + ATTEMPTS)
+// ============================================================================
+
+model ActionDefinition {
+  id                   String    @id @default(cuid())
+  goalId               String
+  targetId             String?
+  subTargetId          String?
+  name                 String
+  scheduleType         String // daily | weekly | custom
+  scheduleConfig       String // JSON string
+  plannedValue         Float?
+  plannedUnit          String?
+  completionRuleType   String // binary_exact | threshold_ge | checklist_all
+  completionRuleConfig String // JSON string (e.g., {"minValue": 5})
+  createdAt            DateTime  @default(now())
+  archivedAt           DateTime?
+
+  goal      Goal       @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  target    Target?    @relation(fields: [targetId], references: [id], onDelete: SetNull)
+  subTarget SubTarget? @relation(fields: [subTargetId], references: [id], onDelete: SetNull)
+
+  attempts ActionAttempt[]
+
+  @@index([goalId])
+  @@index([targetId])
+  @@index([subTargetId])
+  @@map("action_definitions")
+}
+
+model ActionAttempt {
+  id                       String    @id @default(cuid())
+  actionDefinitionId       String
+  goalId                   String
+  date                     DateTime // intended date of execution
+  plannedValue             Float?    // snapshot from definition
+  plannedUnit              String?   // snapshot from definition
+  actualValue              Float?
+  actualUnit               String?
+  executionMagnitudePercent Float?   // 0-100, computed
+  disciplineVerdict        String    // complete | incomplete
+  notes                    String?
+  createdAt                DateTime  @default(now())
+
+  actionDefinition ActionDefinition @relation(fields: [actionDefinitionId], references: [id], onDelete: Cascade)
+  goal             Goal             @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  reviewAnswers ReviewAnswer[]
+
+  @@index([actionDefinitionId])
+  @@index([goalId])
+  @@index([date])
+  @@map("action_attempts")
+}
+
+// ============================================================================
+// TOOLS & ASSETS
+// ============================================================================
+
+model Tool {
+  id          String    @id @default(cuid())
+  userId      String
+  goalId      String?
+  name        String
+  description String?
+  category    String // internal | contextual | social | financial | experience | discipline | other
+  createdAt   DateTime  @default(now())
+  archivedAt  DateTime?
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goal Goal? @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([goalId])
+  @@map("tools")
+}
+
+model Asset {
+  id          String    @id @default(cuid())
+  userId      String
+  goalId      String?
+  name        String
+  description String?
+  category    String // program | membership | coaching | equipment | course | software | environment | other
+  quantity    String?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+  archivedAt  DateTime?
+
+  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goal Goal? @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([goalId])
+  @@map("assets")
+}
+
+// ============================================================================
+// REVIEW SYSTEM
+// ============================================================================
+
+model Review {
+  id                         String   @id @default(cuid())
+  goalId                     String
+  periodStart                DateTime
+  periodEnd                  DateTime
+  disciplineCompletionRate   Float?   // % attempts with verdict complete
+  averageExecutionMagnitude  Float?   // mean of magnitude
+  summary                    String?  // factual summary
+  createdAt                  DateTime @default(now())
+
+  goal Goal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  reviewAnswers ReviewAnswer[]
+
+  @@index([goalId])
+  @@map("reviews")
+}
+
+model ReviewAnswer {
+  id               String    @id @default(cuid())
+  reviewId         String?
+  actionAttemptId  String?
+  questionId       String
+  answerType       String // enum | numeric | text | boolean
+  answerValue      String
+  createdAt        DateTime  @default(now())
+
+  review        Review?        @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  actionAttempt ActionAttempt? @relation(fields: [actionAttemptId], references: [id], onDelete: Cascade)
+  question      Question       @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([reviewId])
+  @@index([actionAttemptId])
+  @@index([questionId])
+  @@map("review_answers")
+}
+
+model Question {
+  id         String   @id @default(cuid())
+  scope      String // attempt_fail | attempt_success | daily | cycle
+  category   String // execution_integrity | constraint | tools | assets | method | transfer | next_adjustment
+  prompt     String
+  answerType String // enum | numeric | text | boolean
+  options    String? // JSON string for enum options
+  createdAt  DateTime @default(now())
+
+  reviewAnswers ReviewAnswer[]
+
+  @@map("questions")
+}
