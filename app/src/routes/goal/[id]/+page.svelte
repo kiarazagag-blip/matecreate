@@ -444,7 +444,7 @@
   }
 
   nav a {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
     text-decoration: none;
     font-size: 0.9rem;
   }
@@ -462,13 +462,13 @@
   h1 {
     margin: 0 0 0.5rem 0;
     font-size: 2rem;
-    color: #e8e8e8;
+    color: var(--text-primary);
     font-weight: 500;
   }
 
   .description {
     margin: 1rem 0 0 0;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
     font-size: 0.9rem;
     font-weight: 300;
   }
@@ -495,7 +495,7 @@
   }
 
   .adherence-label {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
     font-size: 0.75rem;
     margin-bottom: 1.5rem;
     text-transform: uppercase;
@@ -535,7 +535,7 @@
   .adherence-value {
     font-size: 3.5rem;
     font-weight: 300;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
     margin: 0;
     line-height: 1;
   }
@@ -547,7 +547,7 @@
   }
 
   .adherence-status {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-tertiary);
     font-size: 0.65rem;
     margin-top: 0.75rem;
     text-transform: uppercase;
@@ -569,14 +569,14 @@
   .section-header h2 {
     margin: 0;
     font-size: 1.1rem;
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--text-primary);
     line-height: 1.4;
     font-weight: 500;
   }
 
   button {
     background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--text-primary);
     border: 1px solid rgba(255, 255, 255, 0.15);
     padding: 0.5rem 1rem;
     font-size: 0.75rem;
@@ -594,7 +594,7 @@
   }
 
   .empty {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-tertiary);
     font-size: 0.85rem;
   }
 
@@ -779,7 +779,7 @@
 
   .modal-content h2 {
     margin: 0 0 1.5rem 0;
-    color: rgba(255, 255, 255, 0.9);
+    color: var(--text-primary);
     font-weight: 500;
   }
 
@@ -800,7 +800,7 @@
     margin-top: 0.5rem;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.85);
+    color: var(--text-primary);
     border-radius: 25px;
     font-size: 0.95rem;
     font-family: inherit;
@@ -842,7 +842,7 @@
 
   .form-actions button[type='button'] {
     background: transparent;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-secondary);
     border: 1px solid rgba(255, 255, 255, 0.15);
   }
 
