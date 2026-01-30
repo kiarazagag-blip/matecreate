@@ -1,0 +1,49 @@
+import { tool } from '$lib/server/db-index';
+import {
+  requireAuth,
+  parseJsonBody,
+  errorResponse,
+  jsonResponse
+} from '$lib/server/auth';
+import type { RequestHandler } from './$types';
+
+// GET /api/tools?goalId=xxx (optional goalId filter)
+export const GET: RequestHandler = async (event) => {
+  try {
+    const user = await requireAuth(event);
+    const goalId = event.url.searchParams.get('goalId');
+
+    let tools;
+    if (goalId) {
+      tools = tool.findByGoalId(goalId);
+    } else {
+      tools = tool.findByUserId(user.id);
+    }
+
+    return jsonResponse({ tools });
+  } catch (error) {
+    return errorResponse((error as Error).message, 401);
+  }
+};
+
+// POST /api/tools - Create a new tool
+export const POST: RequestHandler = async (event) => {
+  try {
+    const user = await requireAuth(event);
+    const data = await parseJsonBody<{
+      name: string;
+      description?: string;
+      category: string;
+      goalId?: string;
+    }>(event.request);
+
+    if (!data.name || !data.category) {
+      return errorResponse('Name and category are required', 400);
+    }
+
+    const newTool = tool.create(user.id, data);
+    return jsonResponse(newTool, 201);
+  } catch (error) {
+    return errorResponse((error as Error).message, error.message === 'Unauthorized' ? 401 : 400);
+  }
+};

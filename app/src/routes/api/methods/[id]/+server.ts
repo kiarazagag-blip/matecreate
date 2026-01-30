@@ -1,21 +1,40 @@
-import { json } from '@sveltejs/kit';
-import { updateMethod, deleteMethod } from '$lib/server/db';
+import { method } from '$lib/server/db-index';
+import {
+  requireAuth,
+  parseJsonBody,
+  errorResponse,
+  jsonResponse
+} from '$lib/server/auth';
 import type { RequestHandler } from './$types';
 
-export const PUT: RequestHandler = async ({ params, request }) => {
-  const data = await request.json();
-  const methodId = params.id;
+// PATCH /api/methods/[id] - Update a method
+export const PATCH: RequestHandler = async (event) => {
+  try {
+    await requireAuth(event);
+    const data = await parseJsonBody<{
+      name?: string;
+      description?: string;
+    }>(event.request);
 
-  const method = updateMethod(methodId, {
-    name: data.name,
-    description: data.description
-  });
+    const updated = method.update(event.params.id, data);
 
-  return json(method);
+    if (!updated) {
+      return errorResponse('Method not found', 404);
+    }
+
+    return jsonResponse(updated);
+  } catch (error) {
+    return errorResponse((error as Error).message, error.message === 'Unauthorized' ? 401 : 400);
+  }
 };
 
-export const DELETE: RequestHandler = async ({ params }) => {
-  const methodId = params.id;
-  deleteMethod(methodId);
-  return json({ success: true });
+// DELETE /api/methods/[id] - Delete a method
+export const DELETE: RequestHandler = async (event) => {
+  try {
+    await requireAuth(event);
+    method.delete(event.params.id);
+    return jsonResponse({ success: true });
+  } catch (error) {
+    return errorResponse((error as Error).message, 401);
+  }
 };

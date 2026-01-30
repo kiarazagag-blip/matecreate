@@ -1,4 +1,4 @@
-import { target, goal } from '$lib/server/db-index';
+import { review, goal } from '$lib/server/db-index';
 import {
   requireAuth,
   parseJsonBody,
@@ -7,7 +7,7 @@ import {
 } from '$lib/server/auth';
 import type { RequestHandler } from './$types';
 
-// GET /api/targets?goalId=xxx
+// GET /api/reviews?goalId=xxx
 export const GET: RequestHandler = async (event) => {
   try {
     const user = await requireAuth(event);
@@ -23,28 +23,26 @@ export const GET: RequestHandler = async (event) => {
       return errorResponse('Goal not found or unauthorized', 403);
     }
 
-    const targets = target.findByGoalId(goalId);
-    return jsonResponse({ targets });
+    const reviews = review.findByGoalId(goalId);
+    return jsonResponse({ reviews });
   } catch (error) {
     return errorResponse((error as Error).message, 401);
   }
 };
 
-// POST /api/targets - Create a new target
+// POST /api/reviews - Create a new review
 export const POST: RequestHandler = async (event) => {
   try {
     const user = await requireAuth(event);
     const data = await parseJsonBody<{
       goalId: string;
-      name: string;
-      description?: string;
-      measurementUnit?: string;
-      targetValue?: number;
-      deadline?: string;
+      periodStart: string;
+      periodEnd: string;
+      summary?: string;
     }>(event.request);
 
-    if (!data.goalId || !data.name) {
-      return errorResponse('goalId and name are required', 400);
+    if (!data.goalId || !data.periodStart || !data.periodEnd) {
+      return errorResponse('Missing required fields', 400);
     }
 
     // Verify goal ownership
@@ -53,8 +51,8 @@ export const POST: RequestHandler = async (event) => {
       return errorResponse('Goal not found or unauthorized', 403);
     }
 
-    const newTarget = target.create(data.goalId, data);
-    return jsonResponse(newTarget, 201);
+    const newReview = review.create(data.goalId, data);
+    return jsonResponse(newReview, 201);
   } catch (error) {
     return errorResponse((error as Error).message, error.message === 'Unauthorized' ? 401 : 400);
   }

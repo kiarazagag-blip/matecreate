@@ -1,4 +1,4 @@
-import { target, goal } from '$lib/server/db-index';
+import { actionAttempt, goal } from '$lib/server/db-index';
 import {
   requireAuth,
   parseJsonBody,
@@ -7,11 +7,13 @@ import {
 } from '$lib/server/auth';
 import type { RequestHandler } from './$types';
 
-// GET /api/targets?goalId=xxx
+// GET /api/action-attempts?goalId=xxx&startDate=xxx&endDate=xxx
 export const GET: RequestHandler = async (event) => {
   try {
     const user = await requireAuth(event);
     const goalId = event.url.searchParams.get('goalId');
+    const startDate = event.url.searchParams.get('startDate');
+    const endDate = event.url.searchParams.get('endDate');
 
     if (!goalId) {
       return errorResponse('goalId query parameter is required', 400);
@@ -23,28 +25,35 @@ export const GET: RequestHandler = async (event) => {
       return errorResponse('Goal not found or unauthorized', 403);
     }
 
-    const targets = target.findByGoalId(goalId);
-    return jsonResponse({ targets });
+    let attempts;
+    if (startDate && endDate) {
+      attempts = actionAttempt.findByDateRange(goalId, startDate, endDate);
+    } else {
+      attempts = actionAttempt.findByGoalId(goalId);
+    }
+
+    return jsonResponse({ actionAttempts: attempts });
   } catch (error) {
     return errorResponse((error as Error).message, 401);
   }
 };
 
-// POST /api/targets - Create a new target
+// POST /api/action-attempts - Log a new action attempt
 export const POST: RequestHandler = async (event) => {
   try {
     const user = await requireAuth(event);
     const data = await parseJsonBody<{
+      actionDefinitionId: string;
       goalId: string;
-      name: string;
-      description?: string;
-      measurementUnit?: string;
-      targetValue?: number;
-      deadline?: string;
+      date: string;
+      actualValue?: number;
+      actualUnit?: string;
+      notes?: string;
+      explicit?: boolean;
     }>(event.request);
 
-    if (!data.goalId || !data.name) {
-      return errorResponse('goalId and name are required', 400);
+    if (!data.actionDefinitionId || !data.goalId || !data.date) {
+      return errorResponse('Missing required fields', 400);
     }
 
     // Verify goal ownership
@@ -53,8 +62,15 @@ export const POST: RequestHandler = async (event) => {
       return errorResponse('Goal not found or unauthorized', 403);
     }
 
-    const newTarget = target.create(data.goalId, data);
-    return jsonResponse(newTarget, 201);
+    const attempt = actionAttempt.create(data.actionDefinitionId, data.goalId, {
+      date: data.date,
+      actualValue: data.actualValue,
+      actualUnit: data.actualUnit,
+      notes: data.notes,
+      explicit: data.explicit
+    });
+
+    return jsonResponse(attempt, 201);
   } catch (error) {
     return errorResponse((error as Error).message, error.message === 'Unauthorized' ? 401 : 400);
   }

@@ -1,24 +1,43 @@
-import { json } from '@sveltejs/kit';
-import { updateTarget, deleteTarget } from '$lib/server/db';
+import { target } from '$lib/server/db-index';
+import {
+  requireAuth,
+  parseJsonBody,
+  errorResponse,
+  jsonResponse
+} from '$lib/server/auth';
 import type { RequestHandler } from './$types';
 
-export const PUT: RequestHandler = async ({ params, request }) => {
-  const data = await request.json();
-  const targetId = params.id;
+// PATCH /api/targets/[id] - Update a target
+export const PATCH: RequestHandler = async (event) => {
+  try {
+    await requireAuth(event);
+    const data = await parseJsonBody<{
+      name?: string;
+      description?: string;
+      measurementUnit?: string;
+      targetValue?: number;
+      deadline?: string;
+    }>(event.request);
 
-  const target = updateTarget(targetId, {
-    name: data.name,
-    description: data.description,
-    measurementUnit: data.measurementUnit,
-    targetValue: data.targetValue,
-    deadline: data.deadline
-  });
+    const updated = target.update(event.params.id, data);
 
-  return json(target);
+    if (!updated) {
+      return errorResponse('Target not found', 404);
+    }
+
+    return jsonResponse(updated);
+  } catch (error) {
+    return errorResponse((error as Error).message, error.message === 'Unauthorized' ? 401 : 400);
+  }
 };
 
-export const DELETE: RequestHandler = async ({ params }) => {
-  const targetId = params.id;
-  deleteTarget(targetId);
-  return json({ success: true });
+// DELETE /api/targets/[id] - Delete a target
+export const DELETE: RequestHandler = async (event) => {
+  try {
+    await requireAuth(event);
+    target.delete(event.params.id);
+    return jsonResponse({ success: true });
+  } catch (error) {
+    return errorResponse((error as Error).message, 401);
+  }
 };
