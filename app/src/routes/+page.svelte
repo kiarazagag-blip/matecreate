@@ -44,22 +44,30 @@
     });
 
     if (res.ok) {
+      showNewGoalForm = false;
+      newGoalName = '';
       window.location.reload();
     }
   }
 </script>
 
+<div class="gradient-bg">
+  <div class="gradient-blob blob-1"></div>
+  <div class="gradient-blob blob-2"></div>
+  <div class="gradient-blob blob-3"></div>
+  <div class="gradient-blob blob-4"></div>
+</div>
+
 <div class="container">
   <header>
     <div class="header-content">
-      <div>
-        <h1>APEX VIRTUS</h1>
-        <p class="tagline">Execution. Data. Responsibility.</p>
+      <div class="logo-section">
+        <img src="/logo-wordmark.png" alt="APEX" class="logo" />
       </div>
       {#if username}
         <div class="user-section">
-          <span class="username">{username}</span>
-          <button class="logout-btn" on:click={logout}>Logout</button>
+          <span class="username">@{username}</span>
+          <button class="btn btn-secondary logout-btn" on:click={logout}>Logout</button>
         </div>
       {/if}
     </div>
@@ -69,81 +77,92 @@
     {#if loading}
       <div class="loading">Loading...</div>
     {:else if goals.length === 0}
-      <div class="empty-state">
-        <p>No goals defined.</p>
-        <p>Choose a method. Apply it fully. Track reality.</p>
-        <button on:click={() => (showNewGoalForm = true)}>Define Goal</button>
+      <div class="empty-state card">
+        <h2>No goals yet</h2>
+        <p>Start tracking your progress with data-driven goals.</p>
+        <button class="btn btn-primary" on:click={() => (showNewGoalForm = true)}>
+          Create Your First Goal
+        </button>
       </div>
     {:else}
       <div class="goals-header">
-        <h2>Active Goals</h2>
-        <button on:click={() => (showNewGoalForm = true)}>+ New Goal</button>
+        <h2>Your Goals</h2>
+        <button class="btn btn-primary" on:click={() => (showNewGoalForm = true)}>
+          + New Goal
+        </button>
       </div>
 
       <div class="goals-grid">
         {#each goals as goal}
-          <a href="/goal/{goal.id}" class="goal-card">
+          <a href="/goal/{goal.id}" class="goal-card card">
+            <div class="card-top">
+              <span class="module-badge">{goal.moduleType}</span>
+            </div>
             <h3>{goal.name}</h3>
-            <span class="module-badge">{goal.moduleType}</span>
             {#if goal.description}
-              <p>{goal.description}</p>
+              <p class="goal-description">{goal.description}</p>
             {/if}
+            <div class="card-footer">
+              <span class="view-link">View details →</span>
+            </div>
           </a>
         {/each}
-      </div>
-    {/if}
-
-    {#if showNewGoalForm}
-      <div class="modal" on:click={() => (showNewGoalForm = false)}>
-        <div class="modal-content" on:click|stopPropagation>
-          <h2>New Goal</h2>
-          <form on:submit|preventDefault={createGoal}>
-            <label>
-              Goal Name
-              <input type="text" bind:value={newGoalName} required />
-            </label>
-
-            <label>
-              Module
-              <select bind:value={newGoalModule}>
-                <option value="fitness">Fitness & Strength</option>
-                <option value="recovery">Recovery & Sleep</option>
-                <option value="discipline">Discipline & Routines</option>
-                <option value="knowledge">Knowledge & Learning</option>
-                <option value="work">Strategy & Work</option>
-              </select>
-            </label>
-
-            <div class="form-actions">
-              <button type="button" on:click={() => (showNewGoalForm = false)}>Cancel</button>
-              <button type="submit">Create</button>
-            </div>
-          </form>
-        </div>
       </div>
     {/if}
   </main>
 </div>
 
-<style>
-  :global(body) {
-    margin: 0;
-    padding: 0;
-    font-family: 'Nebulica', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #1a1a1c;
-    color: rgba(255, 255, 255, 0.85);
-  }
+{#if showNewGoalForm}
+  <div class="modal" on:click={() => (showNewGoalForm = false)}>
+    <div class="modal-content card" on:click|stopPropagation>
+      <h2>Create New Goal</h2>
+      <form on:submit|preventDefault={createGoal}>
+        <div class="input-group">
+          <label for="goalName">Goal Name</label>
+          <input
+            id="goalName"
+            type="text"
+            bind:value={newGoalName}
+            required
+            placeholder="e.g., Build Strength"
+          />
+        </div>
 
+        <div class="input-group">
+          <label for="module">Module Type</label>
+          <select id="module" bind:value={newGoalModule}>
+            <option value="fitness">Fitness & Strength</option>
+            <option value="recovery">Recovery & Sleep</option>
+            <option value="discipline">Discipline & Routines</option>
+            <option value="knowledge">Knowledge & Learning</option>
+            <option value="work">Strategy & Work</option>
+          </select>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" on:click={() => (showNewGoalForm = false)}>
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">Create Goal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{/if}
+
+<style>
   .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
   }
 
   header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 1rem;
-    margin-bottom: 2rem;
+    padding-bottom: 2rem;
+    margin-bottom: 3rem;
   }
 
   .header-content {
@@ -152,21 +171,9 @@
     align-items: center;
   }
 
-  h1 {
-    margin: 0;
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.95);
-    letter-spacing: 0.05em;
-  }
-
-  .tagline {
-    margin: 0.5rem 0 0 0;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.85rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    font-weight: 300;
+  .logo-section .logo {
+    height: 32px;
+    width: auto;
   }
 
   .user-section {
@@ -176,40 +183,42 @@
   }
 
   .username {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.85rem;
-    font-weight: 400;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    font-weight: 500;
   }
 
   .logout-btn {
-    background: rgba(239, 68, 68, 0.15);
-    color: rgba(239, 68, 68, 0.9);
-    border: 1px solid rgba(239, 68, 68, 0.3);
-    padding: 0.5rem 1rem;
-    font-size: 0.7rem;
-  }
-
-  .logout-btn:hover {
-    background: rgba(239, 68, 68, 0.25);
-    border-color: rgba(239, 68, 68, 0.5);
-    color: rgba(239, 68, 68, 1);
+    padding: 0.65rem 1.25rem;
+    font-size: 0.85rem;
   }
 
   .loading {
     text-align: center;
     padding: 4rem 2rem;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-size: 1rem;
   }
 
   .empty-state {
     text-align: center;
-    padding: 4rem 2rem;
+    padding: 4rem 3rem;
+    max-width: 500px;
+    margin: 4rem auto;
+  }
+
+  .empty-state h2 {
+    margin: 0 0 1rem 0;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-primary);
   }
 
   .empty-state p {
-    color: #888;
-    margin: 1rem 0;
+    color: var(--text-secondary);
+    margin: 0 0 2rem 0;
+    font-size: 1.05rem;
+    line-height: 1.6;
   }
 
   .goals-header {
@@ -221,71 +230,66 @@
 
   .goals-header h2 {
     margin: 0;
-    color: #fff;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--text-primary);
   }
 
   .goals-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
     gap: 1.5rem;
   }
 
   .goal-card {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    padding: 1.5rem;
-    border-radius: 25px;
     text-decoration: none;
     color: inherit;
-    transition: all 0.2s ease;
-    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    min-height: 180px;
   }
 
-  .goal-card:hover {
-    border-color: rgba(255, 255, 255, 0.15);
-    background: rgba(255, 255, 255, 0.08);
-  }
-
-  .goal-card h3 {
-    margin: 0 0 0.5rem 0;
-    color: #fff;
-  }
-
-  .goal-card p {
-    margin: 0.5rem 0 0 0;
-    color: #888;
-    font-size: 0.9rem;
+  .card-top {
+    margin-bottom: 1rem;
   }
 
   .module-badge {
     display: inline-block;
-    padding: 0.25rem 0.5rem;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 25px;
-    font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.6);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-  }
-
-  button {
-    background: rgba(255, 255, 255, 0.12);
-    color: rgba(255, 255, 255, 0.85);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 0.75rem 1.5rem;
+    padding: 0.4rem 0.85rem;
+    background: var(--bg-primary);
+    border-radius: 50px;
     font-size: 0.75rem;
-    font-weight: 400;
-    cursor: pointer;
-    border-radius: 25px;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    transition: all 0.2s ease;
+    color: var(--text-secondary);
+    text-transform: capitalize;
+    font-weight: 500;
   }
 
-  button:hover {
-    background: rgba(255, 255, 255, 0.18);
-    border-color: rgba(255, 255, 255, 0.25);
+  .goal-card h3 {
+    margin: 0 0 0.75rem 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.3;
+  }
+
+  .goal-description {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    flex: 1;
+  }
+
+  .card-footer {
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .view-link {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
   }
 
   .modal {
@@ -294,7 +298,8 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.8);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -302,73 +307,88 @@
   }
 
   .modal-content {
-    background: rgba(20, 20, 20, 0.95);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 2rem;
-    border-radius: 25px;
     max-width: 500px;
     width: 90%;
-    backdrop-filter: blur(20px);
+    padding: 2.5rem;
+    animation: slideUp 0.3s ease;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
   .modal-content h2 {
-    margin: 0 0 1.5rem 0;
-    color: rgba(255, 255, 255, 0.9);
+    margin: 0 0 2rem 0;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  label {
+    color: var(--text-primary);
+    font-size: 0.9rem;
     font-weight: 500;
   }
 
-  form label {
-    display: block;
-    margin-bottom: 1rem;
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 0.85rem;
-    font-weight: 400;
-  }
-
-  form input,
-  form select {
-    display: block;
-    width: 100%;
-    padding: 0.75rem;
-    margin-top: 0.5rem;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.85);
-    border-radius: 25px;
-    font-size: 0.95rem;
+  input,
+  select {
+    padding: 1rem 1.25rem;
+    background: var(--bg-primary);
+    border: 1px solid #e5e5e7;
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 1rem;
     font-family: inherit;
-    box-sizing: border-box;
+    transition: all 0.2s ease;
   }
 
-  form select {
-    padding-right: 2.5rem;
+  input::placeholder {
+    color: var(--text-tertiary);
   }
 
-  form input:focus,
-  form select:focus {
+  input:focus,
+  select:focus {
     outline: none;
-    border-color: rgba(255, 255, 255, 0.25);
-    background: rgba(255, 255, 255, 0.08);
+    border-color: var(--text-primary);
+    background: #fafafa;
+  }
+
+  select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236e6e73' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 3rem;
   }
 
   .form-actions {
     display: flex;
     gap: 1rem;
-    margin-top: 1.5rem;
+    margin-top: 0.5rem;
   }
 
   .form-actions button {
     flex: 1;
-  }
-
-  .form-actions button[type='button'] {
-    background: transparent;
-    color: rgba(255, 255, 255, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-  }
-
-  .form-actions button[type='button']:hover {
-    background: rgba(255, 255, 255, 0.05);
-    color: rgba(255, 255, 255, 0.7);
+    padding: 1rem;
   }
 </style>
