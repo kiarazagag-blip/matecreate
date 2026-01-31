@@ -12,7 +12,7 @@ export const load: PageServerLoad = async (event) => {
   }
 
   // Get goals for user
-  const goals = goal.findMany(user.id);
+  const goals = await goal.findMany(user.id);
 
   return {
     goals,

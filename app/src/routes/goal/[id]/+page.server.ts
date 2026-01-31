@@ -12,7 +12,7 @@ export const load: PageServerLoad = async (event) => {
   }
 
   // Get goal
-  const goalData = goal.findById(event.params.id);
+  const goalData = await goal.findById(event.params.id);
 
   if (!goalData) {
     throw redirect(302, '/');
@@ -24,14 +24,14 @@ export const load: PageServerLoad = async (event) => {
   }
 
   // Get related data
-  const targets = target.findByGoalId(goalData.id);
-  const methods = method.findByGoalId(goalData.id);
-  const attempts = actionAttempt.findByGoalId(goalData.id, 30); // Last 30 attempts
+  const targets = await target.findByGoalId(goalData.id);
+  const methods = await method.findByGoalId(goalData.id);
+  const attempts = await actionAttempt.findByGoalId(goalData.id, 30); // Last 30 attempts
 
   // Calculate adherence for last 7 days
   const now = new Date();
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const recentAttempts = actionAttempt.findByDateRange(
+  const recentAttempts = await actionAttempt.findByDateRange(
     goalData.id,
     sevenDaysAgo.toISOString(),
     now.toISOString()

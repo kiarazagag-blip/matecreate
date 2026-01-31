@@ -30,7 +30,7 @@ export const POST: RequestHandler = async ({ request }) => {
     const newUser = await user.create(username, password);
 
     // Create session
-    const newSession = session.create(newUser.id);
+    const newSession = await session.create(newUser.id);
 
     // Return user data with session cookie
     return jsonResponse(
