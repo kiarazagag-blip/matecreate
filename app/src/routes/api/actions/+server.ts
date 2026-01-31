@@ -1,4 +1,4 @@
-import { goal } from '$lib/server/db-index';
+import { goal, actionDefinition, actionAttempt } from '$lib/server/db-index';
 import {
   requireAuth,
   parseJsonBody,
@@ -8,9 +8,8 @@ import {
 import type { RequestHandler } from './$types';
 
 /**
- * LEGACY ENDPOINT - For backward compatibility
- * This endpoint is still used by the goal detail page
- * TODO: Migrate to ActionDefinition/ActionAttempt system
+ * Simple action logging endpoint
+ * Creates a default ActionDefinition if needed, then logs an ActionAttempt
  */
 export const POST: RequestHandler = async (event) => {
   try {
@@ -22,7 +21,7 @@ export const POST: RequestHandler = async (event) => {
       value?: number;
       unit?: string;
       notes?: string;
-      completed: boolean;
+      completed?: boolean;
     }>(event.request);
 
     if (!data.goalId || !data.date) {
@@ -35,21 +34,30 @@ export const POST: RequestHandler = async (event) => {
       return errorResponse('Goal not found or unauthorized', 403);
     }
 
-    // For now, return a stub response
-    // The UI will still work but won't persist data until we migrate to ActionAttempt
-    const stubAction = {
-      id: `action_${Date.now()}`,
-      goalId: data.goalId,
-      targetId: data.targetId || null,
-      date: data.date,
-      value: data.value || null,
-      unit: data.unit || null,
-      notes: data.notes || null,
-      completed: data.completed,
-      createdAt: new Date().toISOString()
-    };
+    // Create or find a default action definition for this goal
+    const definitions = await actionDefinition.findByGoalId(data.goalId);
+    let defaultDefinition = definitions.find((d) => d.name === 'Default Action');
 
-    return jsonResponse(stubAction, 201);
+    if (!defaultDefinition) {
+      defaultDefinition = await actionDefinition.create(data.goalId, {
+        name: 'Default Action',
+        scheduleType: 'daily',
+        scheduleConfig: {},
+        completionRuleType: 'binary_exact',
+        completionRuleConfig: {}
+      });
+    }
+
+    // Create the action attempt
+    const attempt = await actionAttempt.create(defaultDefinition.id, data.goalId, {
+      date: data.date,
+      actualValue: data.value,
+      actualUnit: data.unit,
+      notes: data.notes,
+      explicit: data.completed !== false
+    });
+
+    return jsonResponse(attempt, 201);
   } catch (error) {
     return errorResponse((error as Error).message, error.message === 'Unauthorized' ? 401 : 400);
   }

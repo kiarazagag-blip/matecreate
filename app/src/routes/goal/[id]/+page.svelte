@@ -7,6 +7,12 @@
   type Tab = 'overview' | 'targets' | 'methods' | 'actions' | 'reviews';
   let activeTab: Tab = 'overview';
 
+  // Goal form state
+  let showGoalForm = false;
+  let editGoalName = data.goal.name;
+  let editGoalDescription = data.goal.description || '';
+  let editGoalDeadline = data.goal.deadline || '';
+
   // Target form state
   let showTargetForm = false;
   let editingTargetId: string | null = null;
@@ -30,12 +36,67 @@
   let actionNotes = '';
   let selectedTargetId = '';
 
+  // Timeline calculations
+  $: daysRemaining = data.goal.deadline
+    ? Math.ceil((new Date(data.goal.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : null;
+  $: timelineStatus =
+    daysRemaining === null
+      ? 'No deadline'
+      : daysRemaining < 0
+        ? 'Overdue'
+        : daysRemaining < 7
+          ? 'Urgent'
+          : daysRemaining < 30
+            ? 'Soon'
+            : 'On track';
+
   function formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric',
       year: 'numeric'
     });
+  }
+
+  function formatDeadline(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString('en-US', {
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric'
+    });
+  }
+
+  async function saveGoal() {
+    const res = await fetch(`/api/goals/${data.goal.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        name: editGoalName,
+        description: editGoalDescription || undefined,
+        deadline: editGoalDeadline || undefined
+      })
+    });
+
+    if (res.ok) {
+      showGoalForm = false;
+      window.location.reload();
+    }
+  }
+
+  async function deleteGoal() {
+    if (!confirm(`Delete "${data.goal.name}"? This will delete all targets, methods, and actions.`))
+      return;
+
+    const res = await fetch(`/api/goals/${data.goal.id}`, {
+      method: 'DELETE',
+      credentials: 'include'
+    });
+
+    if (res.ok) {
+      goto('/');
+    }
   }
 
   function openEditTarget(target: any) {
@@ -176,38 +237,67 @@
   </nav>
 
   <header>
-    <div class="header-top">
-      <h1>{data.goal.name}</h1>
-      <span class="module-badge">{data.goal.moduleType}</span>
+    <div class="header-main">
+      <div class="header-left">
+        <h1>{data.goal.name}</h1>
+        <span class="module-badge">{data.goal.moduleType}</span>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" on:click={() => (showGoalForm = true)} title="Edit goal">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+          </svg>
+        </button>
+      </div>
     </div>
     {#if data.goal.description}
       <p class="description">{data.goal.description}</p>
     {/if}
+
+    {#if data.goal.deadline}
+      <div class="timeline-banner {timelineStatus.toLowerCase().replace(' ', '-')}">
+        <div class="timeline-content">
+          <div class="timeline-label">Target Deadline</div>
+          <div class="timeline-date">{formatDeadline(data.goal.deadline)}</div>
+          <div class="timeline-status">
+            {#if daysRemaining !== null}
+              {#if daysRemaining < 0}
+                {Math.abs(daysRemaining)} days overdue
+              {:else if daysRemaining === 0}
+                Due today
+              {:else if daysRemaining === 1}
+                1 day remaining
+              {:else}
+                {daysRemaining} days remaining
+              {/if}
+            {/if}
+          </div>
+        </div>
+      </div>
+    {/if}
   </header>
 
   <div class="tabs">
-    <button
-      class="tab"
-      class:active={activeTab === 'overview'}
-      on:click={() => (activeTab = 'overview')}
-    >
-      Overview
+    <button class="tab-btn" class:active={activeTab === 'overview'} on:click={() => (activeTab = 'overview')}>
+      <span class="tab-icon">📊</span>
+      <span class="tab-label">Overview</span>
     </button>
-    <button
-      class="tab"
-      class:active={activeTab === 'targets'}
-      on:click={() => (activeTab = 'targets')}
-    >
-      Targets
+    <button class="tab-btn" class:active={activeTab === 'targets'} on:click={() => (activeTab = 'targets')}>
+      <span class="tab-icon">🎯</span>
+      <span class="tab-label">Targets</span>
     </button>
-    <button class="tab" class:active={activeTab === 'methods'} on:click={() => (activeTab = 'methods')}>
-      Methods
+    <button class="tab-btn" class:active={activeTab === 'methods'} on:click={() => (activeTab = 'methods')}>
+      <span class="tab-icon">⚙️</span>
+      <span class="tab-label">Methods</span>
     </button>
-    <button class="tab" class:active={activeTab === 'actions'} on:click={() => (activeTab = 'actions')}>
-      Actions
+    <button class="tab-btn" class:active={activeTab === 'actions'} on:click={() => (activeTab = 'actions')}>
+      <span class="tab-icon">📝</span>
+      <span class="tab-label">Actions</span>
     </button>
-    <button class="tab" class:active={activeTab === 'reviews'} on:click={() => (activeTab = 'reviews')}>
-      Reviews
+    <button class="tab-btn" class:active={activeTab === 'reviews'} on:click={() => (activeTab = 'reviews')}>
+      <span class="tab-icon">📋</span>
+      <span class="tab-label">Reviews</span>
     </button>
   </div>
 
@@ -248,6 +338,24 @@
           </div>
         </div>
 
+        <div class="card quick-actions-card">
+          <h3 class="card-title">Quick Add</h3>
+          <div class="quick-actions">
+            <button class="quick-action-btn" on:click={() => (showTargetForm = true)}>
+              <span class="qa-icon">🎯</span>
+              <span class="qa-label">Add Target</span>
+            </button>
+            <button class="quick-action-btn" on:click={() => (showMethodForm = true)}>
+              <span class="qa-icon">⚙️</span>
+              <span class="qa-label">Add Method</span>
+            </button>
+            <button class="quick-action-btn" on:click={() => (showActionForm = true)}>
+              <span class="qa-icon">📝</span>
+              <span class="qa-label">Log Action</span>
+            </button>
+          </div>
+        </div>
+
         {#if data.methods.length > 0}
           <div class="card">
             <h3 class="card-title">Active Method</h3>
@@ -265,11 +373,11 @@
               {#each data.actions.slice(0, 5) as action}
                 <div class="action-preview">
                   <span class="action-date">{formatDate(action.date)}</span>
-                  {#if action.value}
-                    <span class="action-value">{action.value} {action.unit || ''}</span>
+                  {#if action.actualValue}
+                    <span class="action-value">{action.actualValue} {action.actualUnit || ''}</span>
                   {/if}
-                  <span class="action-status" class:completed={action.completed}>
-                    {action.completed ? '✓' : '✗'}
+                  <span class="action-status" class:completed={action.disciplineVerdict === 'complete'}>
+                    {action.disciplineVerdict === 'complete' ? '✓' : '✗'}
                   </span>
                 </div>
               {/each}
@@ -370,13 +478,13 @@
             <div class="card action-item">
               <div class="action-header">
                 <span class="action-date">{formatDate(action.date)}</span>
-                <span class="action-status" class:completed={action.completed}>
-                  {action.completed ? '✓ Complete' : '✗ Incomplete'}
+                <span class="action-status" class:completed={action.disciplineVerdict === 'complete'}>
+                  {action.disciplineVerdict === 'complete' ? '✓ Complete' : '✗ Incomplete'}
                 </span>
               </div>
-              {#if action.value}
+              {#if action.actualValue}
                 <div class="action-value-display">
-                  {action.value} {action.unit || ''}
+                  {action.actualValue} {action.actualUnit || ''}
                 </div>
               {/if}
               {#if action.notes}
@@ -399,6 +507,39 @@
     {/if}
   </div>
 </div>
+
+<!-- Goal Edit Modal -->
+{#if showGoalForm}
+  <div class="modal" on:click={() => (showGoalForm = false)}>
+    <div class="modal-content card" on:click|stopPropagation>
+      <h2>Edit Goal</h2>
+      <form on:submit|preventDefault={saveGoal}>
+        <div class="input-group">
+          <label for="goalName">Goal Name</label>
+          <input id="goalName" type="text" bind:value={editGoalName} required />
+        </div>
+
+        <div class="input-group">
+          <label for="goalDesc">Description (Optional)</label>
+          <textarea id="goalDesc" bind:value={editGoalDescription} rows="3"></textarea>
+        </div>
+
+        <div class="input-group">
+          <label for="goalDeadline">Deadline (Optional)</label>
+          <input id="goalDeadline" type="date" bind:value={editGoalDeadline} />
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-danger" on:click={deleteGoal}>Delete Goal</button>
+          <button type="button" class="btn btn-secondary" on:click={() => (showGoalForm = false)}>
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{/if}
 
 <!-- Target Form Modal -->
 {#if showTargetForm}
@@ -427,7 +568,7 @@
           ></textarea>
         </div>
 
-        <div class="form-row">
+        <div class="form-row-responsive">
           <div class="input-group">
             <label for="targetUnit">Unit</label>
             <input id="targetUnit" type="text" bind:value={targetUnit} placeholder="lbs, kg, mins" />
@@ -523,7 +664,7 @@
           </div>
         {/if}
 
-        <div class="form-row">
+        <div class="form-row-responsive">
           <div class="input-group">
             <label for="actionValue">Value</label>
             <input id="actionValue" type="number" step="any" bind:value={actionValue} placeholder="Optional" />
@@ -576,16 +717,22 @@
   }
 
   header {
-    border-bottom: 1px solid #e5e5e7;
-    padding-bottom: 1.5rem;
     margin-bottom: 2rem;
   }
 
-  .header-top {
+  .header-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .header-left {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
   }
 
   h1 {
@@ -596,7 +743,7 @@
   }
 
   .description {
-    margin: 0.75rem 0 0 0;
+    margin: 0.75rem 0 1rem 0;
     color: var(--text-secondary);
     font-size: 1.05rem;
     line-height: 1.6;
@@ -613,35 +760,116 @@
     font-weight: 500;
   }
 
-  .tabs {
+  .header-actions {
     display: flex;
     gap: 0.5rem;
+  }
+
+  .icon-btn {
+    background: var(--bg-primary);
+    border: 1px solid #e5e5e7;
+    color: var(--text-secondary);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .icon-btn:hover {
+    background: #e8e8ed;
+    color: var(--text-primary);
+    border-color: #d0d0d5;
+  }
+
+  .timeline-banner {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+    color: white;
+  }
+
+  .timeline-banner.urgent {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+
+  .timeline-banner.overdue {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  }
+
+  .timeline-content {
+    text-align: center;
+  }
+
+  .timeline-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0.9;
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-date {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .timeline-status {
+    font-size: 0.95rem;
+    opacity: 0.95;
+  }
+
+  .tabs {
+    display: flex;
+    gap: 0.75rem;
     margin-bottom: 2rem;
-    border-bottom: 1px solid #e5e5e7;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    padding-bottom: 0.5rem;
   }
 
-  .tab {
-    background: none;
-    border: none;
-    padding: 1rem 1.5rem;
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-secondary);
+  .tab-btn {
+    background: var(--card-bg);
+    border: 1px solid #e5e5e7;
+    padding: 0.85rem 1.5rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     cursor: pointer;
-    border-bottom: 2px solid transparent;
     transition: all 0.2s ease;
     white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.95rem;
   }
 
-  .tab:hover {
-    color: var(--text-primary);
+  .tab-btn:hover {
+    background: var(--bg-primary);
+    border-color: #d0d0d5;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
   }
 
-  .tab.active {
-    color: var(--text-primary);
-    border-bottom-color: var(--text-primary);
+  .tab-btn.active {
+    background: var(--text-primary);
+    color: white;
+    border-color: var(--text-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  }
+
+  .tab-icon {
+    font-size: 1.1rem;
+  }
+
+  .tab-label {
+    font-size: 0.9rem;
   }
 
   .tab-content {
@@ -675,7 +903,7 @@
 
   .overview-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 1.5rem;
   }
 
@@ -743,6 +971,41 @@
     color: var(--text-primary);
     font-size: 1.25rem;
     font-weight: 600;
+  }
+
+  .quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .quick-action-btn {
+    background: var(--bg-primary);
+    border: 1px solid #e5e5e7;
+    padding: 1rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+  }
+
+  .quick-action-btn:hover {
+    background: #e8e8ed;
+    border-color: #d0d0d5;
+    transform: translateX(4px);
+  }
+
+  .qa-icon {
+    font-size: 1.5rem;
+  }
+
+  .qa-label {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.95rem;
   }
 
   .method-preview h4 {
@@ -831,26 +1094,6 @@
     font-weight: 600;
     color: var(--text-primary);
     flex: 1;
-  }
-
-  .icon-btn {
-    background: var(--bg-primary);
-    border: none;
-    color: var(--text-secondary);
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 1.2rem;
-    transition: all 0.2s ease;
-  }
-
-  .icon-btn:hover {
-    background: #e8e8ed;
-    color: var(--text-primary);
   }
 
   .target-description,
@@ -963,10 +1206,33 @@
     gap: 1.5rem;
   }
 
-  .form-row {
+  .form-row-responsive {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .form-row-responsive {
+      grid-template-columns: 1fr;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    .overview-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .tabs {
+      gap: 0.5rem;
+    }
+
+    .tab-btn {
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+    }
   }
 
   .input-group {
@@ -1025,16 +1291,19 @@
     display: flex;
     gap: 1rem;
     margin-top: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .form-actions button {
     flex: 1;
+    min-width: 120px;
     padding: 1rem;
   }
 
   .btn-danger {
     background: #ef4444;
     color: #ffffff;
+    border: none;
   }
 
   .btn-danger:hover {
