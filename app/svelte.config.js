@@ -1,16 +1,11 @@
-import adapter from '@sveltejs/adapter-static';
+import adapter from '@sveltejs/adapter-auto';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	kit: {
-		adapter: adapter({
-			// Output to 'build' directory for Capacitor
-			pages: 'build',
-			assets: 'build',
-			fallback: 'index.html',
-			precompress: false,
-			strict: false
-		})
+		// adapter-auto for Vercel deployment
+		// For Capacitor mobile builds, see svelte.config.mobile.js
+		adapter: adapter()
 	}
 };
 
