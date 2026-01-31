@@ -117,9 +117,10 @@
     right: 0;
     bottom: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     overflow: hidden;
+    padding-bottom: 3rem;
   }
 
   .mountain-bg {
@@ -150,6 +151,7 @@
     width: 100%;
     max-width: 450px;
     padding: 2rem;
+    padding-bottom: 0;
   }
 
   .auth-form {
@@ -269,6 +271,11 @@
 
     .auth-content {
       padding: 1.5rem;
+      padding-bottom: 0;
+    }
+
+    .auth-screen {
+      padding-bottom: 2rem;
     }
   }
 </style>

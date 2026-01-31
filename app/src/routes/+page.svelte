@@ -190,7 +190,7 @@
     right: 0;
     bottom: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: center;
     overflow: hidden;
   }
@@ -224,9 +224,8 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 100vh;
-    padding: 2rem;
-    gap: 4rem;
+    padding: 3rem 2rem 4rem 2rem;
+    gap: 3rem;
   }
 
   .branding {
