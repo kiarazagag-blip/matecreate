@@ -19,7 +19,7 @@ const COOKIE_OPTIONS: CookieSerializeOptions = {
 /**
  * Get session from request cookies
  */
-export function getSessionFromCookies(cookies: string | null): Session | null {
+export async function getSessionFromCookies(cookies: string | null): Promise<Session | null> {
   if (!cookies) return null;
 
   const parsed = parse(cookies);
@@ -27,7 +27,7 @@ export function getSessionFromCookies(cookies: string | null): Session | null {
 
   if (!token) return null;
 
-  return session.findByToken(token);
+  return await session.findByToken(token);
 }
 
 /**
@@ -35,11 +35,11 @@ export function getSessionFromCookies(cookies: string | null): Session | null {
  */
 export async function getUserFromRequest(event: RequestEvent): Promise<User | null> {
   const cookieHeader = event.request.headers.get('cookie');
-  const sess = getSessionFromCookies(cookieHeader);
+  const sess = await getSessionFromCookies(cookieHeader);
 
   if (!sess) return null;
 
-  return userDb.findById(sess.userId);
+  return await userDb.findById(sess.userId);
 }
 
 /**

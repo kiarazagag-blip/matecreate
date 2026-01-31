@@ -8,11 +8,11 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
   const cookieHeader = request.headers.get('cookie');
-  const sess = getSessionFromCookies(cookieHeader);
+  const sess = await getSessionFromCookies(cookieHeader);
 
   if (sess) {
     // Delete session from database
-    session.delete(sess.token);
+    await session.delete(sess.token);
   }
 
   // Clear session cookie
