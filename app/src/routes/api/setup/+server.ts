@@ -25,17 +25,20 @@ export const GET: RequestHandler = async () => {
       });
     }
 
-    // Run the migration SQL directly
-    await prisma.$executeRawUnsafe(`
-      -- Create users table
+    // Create each table separately (PostgreSQL doesn't allow multiple statements in one call)
+
+    // Users table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "users" (
         "id" TEXT PRIMARY KEY,
         "username" TEXT UNIQUE NOT NULL,
         "passwordHash" TEXT NOT NULL,
         "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
+      )
+    `;
 
-      -- Create sessions table
+    // Sessions table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "sessions" (
         "id" TEXT PRIMARY KEY,
         "userId" TEXT NOT NULL,
@@ -43,12 +46,14 @@ export const GET: RequestHandler = async () => {
         "expiresAt" TIMESTAMP NOT NULL,
         "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE
-      );
+      )
+    `;
 
-      CREATE INDEX IF NOT EXISTS "idx_sessions_userId" ON "sessions"("userId");
-      CREATE INDEX IF NOT EXISTS "idx_sessions_token" ON "sessions"("token");
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_sessions_userId" ON "sessions"("userId")`;
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_sessions_token" ON "sessions"("token")`;
 
-      -- Create purposes table
+    // Purposes table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "purposes" (
         "id" TEXT PRIMARY KEY,
         "userId" TEXT NOT NULL,
@@ -57,11 +62,13 @@ export const GET: RequestHandler = async () => {
         "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "archivedAt" TIMESTAMP,
         FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE
-      );
+      )
+    `;
 
-      CREATE INDEX IF NOT EXISTS "idx_purposes_userId" ON "purposes"("userId");
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_purposes_userId" ON "purposes"("userId")`;
 
-      -- Create goals table
+    // Goals table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "goals" (
         "id" TEXT PRIMARY KEY,
         "userId" TEXT NOT NULL,
@@ -76,12 +83,14 @@ export const GET: RequestHandler = async () => {
         "archivedAt" TIMESTAMP,
         FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE,
         FOREIGN KEY ("purposeId") REFERENCES "purposes"("id") ON DELETE SET NULL
-      );
+      )
+    `;
 
-      CREATE INDEX IF NOT EXISTS "idx_goals_userId" ON "goals"("userId");
-      CREATE INDEX IF NOT EXISTS "idx_goals_purposeId" ON "goals"("purposeId");
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_goals_userId" ON "goals"("userId")`;
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_goals_purposeId" ON "goals"("purposeId")`;
 
-      -- Create methods table
+    // Methods table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "methods" (
         "id" TEXT PRIMARY KEY,
         "goalId" TEXT NOT NULL,
@@ -91,11 +100,13 @@ export const GET: RequestHandler = async () => {
         "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "abandonedAt" TIMESTAMP,
         FOREIGN KEY ("goalId") REFERENCES "goals"("id") ON DELETE CASCADE
-      );
+      )
+    `;
 
-      CREATE INDEX IF NOT EXISTS "idx_methods_goalId" ON "methods"("goalId");
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_methods_goalId" ON "methods"("goalId")`;
 
-      -- Create targets table
+    // Targets table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "targets" (
         "id" TEXT PRIMARY KEY,
         "goalId" TEXT NOT NULL,
@@ -107,11 +118,13 @@ export const GET: RequestHandler = async () => {
         "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "completedAt" TIMESTAMP,
         FOREIGN KEY ("goalId") REFERENCES "goals"("id") ON DELETE CASCADE
-      );
+      )
+    `;
 
-      CREATE INDEX IF NOT EXISTS "idx_targets_goalId" ON "targets"("goalId");
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_targets_goalId" ON "targets"("goalId")`;
 
-      -- Create sub_targets table
+    // SubTargets table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "sub_targets" (
         "id" TEXT PRIMARY KEY,
         "targetId" TEXT NOT NULL,
@@ -123,11 +136,13 @@ export const GET: RequestHandler = async () => {
         "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         "completedAt" TIMESTAMP,
         FOREIGN KEY ("targetId") REFERENCES "targets"("id") ON DELETE CASCADE
-      );
+      )
+    `;
 
-      CREATE INDEX IF NOT EXISTS "idx_sub_targets_targetId" ON "sub_targets"("targetId");
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_sub_targets_targetId" ON "sub_targets"("targetId")`;
 
-      -- Create action_definitions table
+    // ActionDefinitions table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "action_definitions" (
         "id" TEXT PRIMARY KEY,
         "goalId" TEXT NOT NULL,
@@ -145,13 +160,15 @@ export const GET: RequestHandler = async () => {
         FOREIGN KEY ("goalId") REFERENCES "goals"("id") ON DELETE CASCADE,
         FOREIGN KEY ("targetId") REFERENCES "targets"("id") ON DELETE SET NULL,
         FOREIGN KEY ("subTargetId") REFERENCES "sub_targets"("id") ON DELETE SET NULL
-      );
+      )
+    `;
 
-      CREATE INDEX IF NOT EXISTS "idx_action_definitions_goalId" ON "action_definitions"("goalId");
-      CREATE INDEX IF NOT EXISTS "idx_action_definitions_targetId" ON "action_definitions"("targetId");
-      CREATE INDEX IF NOT EXISTS "idx_action_definitions_subTargetId" ON "action_definitions"("subTargetId");
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_action_definitions_goalId" ON "action_definitions"("goalId")`;
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_action_definitions_targetId" ON "action_definitions"("targetId")`;
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_action_definitions_subTargetId" ON "action_definitions"("subTargetId")`;
 
-      -- Create action_attempts table
+    // ActionAttempts table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "action_attempts" (
         "id" TEXT PRIMARY KEY,
         "actionDefinitionId" TEXT NOT NULL,
@@ -167,13 +184,15 @@ export const GET: RequestHandler = async () => {
         "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY ("actionDefinitionId") REFERENCES "action_definitions"("id") ON DELETE CASCADE,
         FOREIGN KEY ("goalId") REFERENCES "goals"("id") ON DELETE CASCADE
-      );
+      )
+    `;
 
-      CREATE INDEX IF NOT EXISTS "idx_action_attempts_actionDefinitionId" ON "action_attempts"("actionDefinitionId");
-      CREATE INDEX IF NOT EXISTS "idx_action_attempts_goalId" ON "action_attempts"("goalId");
-      CREATE INDEX IF NOT EXISTS "idx_action_attempts_date" ON "action_attempts"("date");
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_action_attempts_actionDefinitionId" ON "action_attempts"("actionDefinitionId")`;
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_action_attempts_goalId" ON "action_attempts"("goalId")`;
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_action_attempts_date" ON "action_attempts"("date")`;
 
-      -- Create tools table
+    // Tools table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "tools" (
         "id" TEXT PRIMARY KEY,
         "userId" TEXT NOT NULL,
@@ -185,12 +204,14 @@ export const GET: RequestHandler = async () => {
         "archivedAt" TIMESTAMP,
         FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE,
         FOREIGN KEY ("goalId") REFERENCES "goals"("id") ON DELETE CASCADE
-      );
+      )
+    `;
 
-      CREATE INDEX IF NOT EXISTS "idx_tools_userId" ON "tools"("userId");
-      CREATE INDEX IF NOT EXISTS "idx_tools_goalId" ON "tools"("goalId");
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_tools_userId" ON "tools"("userId")`;
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_tools_goalId" ON "tools"("goalId")`;
 
-      -- Create assets table
+    // Assets table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "assets" (
         "id" TEXT PRIMARY KEY,
         "userId" TEXT NOT NULL,
@@ -204,12 +225,14 @@ export const GET: RequestHandler = async () => {
         "archivedAt" TIMESTAMP,
         FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE,
         FOREIGN KEY ("goalId") REFERENCES "goals"("id") ON DELETE CASCADE
-      );
+      )
+    `;
 
-      CREATE INDEX IF NOT EXISTS "idx_assets_userId" ON "assets"("userId");
-      CREATE INDEX IF NOT EXISTS "idx_assets_goalId" ON "assets"("goalId");
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_assets_userId" ON "assets"("userId")`;
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_assets_goalId" ON "assets"("goalId")`;
 
-      -- Create reviews table
+    // Reviews table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "reviews" (
         "id" TEXT PRIMARY KEY,
         "goalId" TEXT NOT NULL,
@@ -220,11 +243,13 @@ export const GET: RequestHandler = async () => {
         "summary" TEXT,
         "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
         FOREIGN KEY ("goalId") REFERENCES "goals"("id") ON DELETE CASCADE
-      );
+      )
+    `;
 
-      CREATE INDEX IF NOT EXISTS "idx_reviews_goalId" ON "reviews"("goalId");
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_reviews_goalId" ON "reviews"("goalId")`;
 
-      -- Create questions table
+    // Questions table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "questions" (
         "id" TEXT PRIMARY KEY,
         "scope" TEXT NOT NULL,
@@ -233,9 +258,11 @@ export const GET: RequestHandler = async () => {
         "answerType" TEXT NOT NULL,
         "options" TEXT,
         "createdAt" TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-      );
+      )
+    `;
 
-      -- Create review_answers table
+    // ReviewAnswers table
+    await prisma.$executeRaw`
       CREATE TABLE IF NOT EXISTS "review_answers" (
         "id" TEXT PRIMARY KEY,
         "reviewId" TEXT,
@@ -247,12 +274,12 @@ export const GET: RequestHandler = async () => {
         FOREIGN KEY ("reviewId") REFERENCES "reviews"("id") ON DELETE CASCADE,
         FOREIGN KEY ("actionAttemptId") REFERENCES "action_attempts"("id") ON DELETE CASCADE,
         FOREIGN KEY ("questionId") REFERENCES "questions"("id") ON DELETE CASCADE
-      );
+      )
+    `;
 
-      CREATE INDEX IF NOT EXISTS "idx_review_answers_reviewId" ON "review_answers"("reviewId");
-      CREATE INDEX IF NOT EXISTS "idx_review_answers_actionAttemptId" ON "review_answers"("actionAttemptId");
-      CREATE INDEX IF NOT EXISTS "idx_review_answers_questionId" ON "review_answers"("questionId");
-    `);
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_review_answers_reviewId" ON "review_answers"("reviewId")`;
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_review_answers_actionAttemptId" ON "review_answers"("actionAttemptId")`;
+    await prisma.$executeRaw`CREATE INDEX IF NOT EXISTS "idx_review_answers_questionId" ON "review_answers"("questionId")`;
 
     return json({
       success: true,
