@@ -101,10 +101,28 @@ model Method {
   createdAt   DateTime  @default(now())
   abandonedAt DateTime?
 
-  goal Goal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  goal     Goal            @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  sessions MethodSession[]
 
   @@index([goalId])
   @@map("methods")
+}
+
+model MethodSession {
+  id          String   @id @default(cuid())
+  methodId    String
+  date        DateTime
+  title       String
+  notes       String?
+  metrics     String? // JSON: {"weight": 185, "reps": 5, "sets": 3}
+  files       String? // JSON: [{"name": "program.pdf", "type": "application/pdf", "data": "base64..."}]
+  createdAt   DateTime @default(now())
+
+  method Method @relation(fields: [methodId], references: [id], onDelete: Cascade)
+
+  @@index([methodId])
+  @@index([date])
+  @@map("method_sessions")
 }
 
 model Target {
