@@ -17,7 +17,7 @@ export const GET: RequestHandler = async (event) => {
       return errorResponse('targetId query parameter is required', 400);
     }
 
-    const subTargets = subTarget.findByTargetId(targetId);
+    const subTargets = await subTarget.findByTargetId(targetId);
     return jsonResponse({ subTargets });
   } catch (error) {
     return errorResponse((error as Error).message, 401);
@@ -42,12 +42,12 @@ export const POST: RequestHandler = async (event) => {
     }
 
     // Verify target exists
-    const targetData = target.findById(data.targetId);
+    const targetData = await target.findById(data.targetId);
     if (!targetData) {
       return errorResponse('Target not found', 404);
     }
 
-    const newSubTarget = subTarget.create(data.targetId, data);
+    const newSubTarget = await subTarget.create(data.targetId, data);
     return jsonResponse(newSubTarget, 201);
   } catch (error) {
     return errorResponse((error as Error).message, error.message === 'Unauthorized' ? 401 : 400);

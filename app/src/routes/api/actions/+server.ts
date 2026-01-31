@@ -30,7 +30,7 @@ export const POST: RequestHandler = async (event) => {
     }
 
     // Verify goal ownership
-    const goalData = goal.findById(data.goalId);
+    const goalData = await goal.findById(data.goalId);
     if (!goalData || goalData.userId !== user.id) {
       return errorResponse('Goal not found or unauthorized', 403);
     }

@@ -15,9 +15,9 @@ export const GET: RequestHandler = async (event) => {
 
     let tools;
     if (goalId) {
-      tools = tool.findByGoalId(goalId);
+      tools = await tool.findByGoalId(goalId);
     } else {
-      tools = tool.findByUserId(user.id);
+      tools = await tool.findByUserId(user.id);
     }
 
     return jsonResponse({ tools });
@@ -41,7 +41,7 @@ export const POST: RequestHandler = async (event) => {
       return errorResponse('Name and category are required', 400);
     }
 
-    const newTool = tool.create(user.id, data);
+    const newTool = await tool.create(user.id, data);
     return jsonResponse(newTool, 201);
   } catch (error) {
     return errorResponse((error as Error).message, error.message === 'Unauthorized' ? 401 : 400);

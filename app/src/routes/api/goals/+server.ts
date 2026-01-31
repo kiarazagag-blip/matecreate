@@ -11,7 +11,7 @@ import type { RequestHandler } from './$types';
 export const GET: RequestHandler = async (event) => {
   try {
     const user = await requireAuth(event);
-    const goals = goal.findMany(user.id);
+    const goals = await goal.findMany(user.id);
     return jsonResponse({ goals });
   } catch (error) {
     return errorResponse((error as Error).message, 401);
@@ -35,7 +35,7 @@ export const POST: RequestHandler = async (event) => {
       return errorResponse('Name and moduleType are required', 400);
     }
 
-    const newGoal = goal.create(user.id, data);
+    const newGoal = await goal.create(user.id, data);
     return jsonResponse(newGoal, 201);
   } catch (error) {
     return errorResponse((error as Error).message, error.message === 'Unauthorized' ? 401 : 400);

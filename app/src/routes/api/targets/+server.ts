@@ -18,12 +18,12 @@ export const GET: RequestHandler = async (event) => {
     }
 
     // Verify goal ownership
-    const goalData = goal.findById(goalId);
+    const goalData = await goal.findById(goalId);
     if (!goalData || goalData.userId !== user.id) {
       return errorResponse('Goal not found or unauthorized', 403);
     }
 
-    const targets = target.findByGoalId(goalId);
+    const targets = await target.findByGoalId(goalId);
     return jsonResponse({ targets });
   } catch (error) {
     return errorResponse((error as Error).message, 401);
@@ -48,12 +48,12 @@ export const POST: RequestHandler = async (event) => {
     }
 
     // Verify goal ownership
-    const goalData = goal.findById(data.goalId);
+    const goalData = await goal.findById(data.goalId);
     if (!goalData || goalData.userId !== user.id) {
       return errorResponse('Goal not found or unauthorized', 403);
     }
 
-    const newTarget = target.create(data.goalId, data);
+    const newTarget = await target.create(data.goalId, data);
     return jsonResponse(newTarget, 201);
   } catch (error) {
     return errorResponse((error as Error).message, error.message === 'Unauthorized' ? 401 : 400);

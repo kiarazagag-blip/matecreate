@@ -16,7 +16,7 @@ import type { RequestHandler } from './$types';
 export const GET: RequestHandler = async (event) => {
   try {
     const user = await requireAuth(event);
-    const goalData = goal.findById(event.params.id);
+    const goalData = await goal.findById(event.params.id);
 
     if (!goalData) {
       return errorResponse('Goal not found', 404);
@@ -28,11 +28,11 @@ export const GET: RequestHandler = async (event) => {
     }
 
     // Get active method
-    const methods = method.findByGoalId(goalData.id, false);
+    const methods = await method.findByGoalId(goalData.id, false);
     const activeMethod = methods.find((m) => m.status === 'active') || null;
 
     // Get upcoming deadlines (targets with deadlines in the future)
-    const targets = target.findByGoalId(goalData.id, false);
+    const targets = await target.findByGoalId(goalData.id, false);
     const now = new Date();
     const upcomingDeadlines = targets
       .filter((t) => t.deadline && new Date(t.deadline) > now)
@@ -43,8 +43,8 @@ export const GET: RequestHandler = async (event) => {
       .slice(0, 5);
 
     // Get tools and assets
-    const goalTools = tool.findByGoalId(goalData.id, false);
-    const goalAssets = asset.findByGoalId(goalData.id, false);
+    const goalTools = await tool.findByGoalId(goalData.id, false);
+    const goalAssets = await asset.findByGoalId(goalData.id, false);
 
     // Compute metrics for different time periods
     const periods = [
@@ -60,7 +60,7 @@ export const GET: RequestHandler = async (event) => {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() - period.days);
 
-      const attempts = actionAttempt.findByDateRange(
+      const attempts = await actionAttempt.findByDateRange(
         goalData.id,
         startDate.toISOString(),
         endDate.toISOString()

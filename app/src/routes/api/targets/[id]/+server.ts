@@ -19,7 +19,7 @@ export const PATCH: RequestHandler = async (event) => {
       deadline?: string;
     }>(event.request);
 
-    const updated = target.update(event.params.id, data);
+    const updated = await target.update(event.params.id, data);
 
     if (!updated) {
       return errorResponse('Target not found', 404);
@@ -35,7 +35,7 @@ export const PATCH: RequestHandler = async (event) => {
 export const DELETE: RequestHandler = async (event) => {
   try {
     await requireAuth(event);
-    target.delete(event.params.id);
+    await target.delete(event.params.id);
     return jsonResponse({ success: true });
   } catch (error) {
     return errorResponse((error as Error).message, 401);

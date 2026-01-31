@@ -15,9 +15,9 @@ export const GET: RequestHandler = async (event) => {
 
     let assets;
     if (goalId) {
-      assets = asset.findByGoalId(goalId);
+      assets = await asset.findByGoalId(goalId);
     } else {
-      assets = asset.findByUserId(user.id);
+      assets = await asset.findByUserId(user.id);
     }
 
     return jsonResponse({ assets });
@@ -43,7 +43,7 @@ export const POST: RequestHandler = async (event) => {
       return errorResponse('Name and category are required', 400);
     }
 
-    const newAsset = asset.create(user.id, data);
+    const newAsset = await asset.create(user.id, data);
     return jsonResponse(newAsset, 201);
   } catch (error) {
     return errorResponse((error as Error).message, error.message === 'Unauthorized' ? 401 : 400);

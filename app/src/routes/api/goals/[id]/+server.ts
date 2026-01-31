@@ -11,7 +11,7 @@ import type { RequestHandler } from './$types';
 export const GET: RequestHandler = async (event) => {
   try {
     const user = await requireAuth(event);
-    const goalData = goal.findById(event.params.id);
+    const goalData = await goal.findById(event.params.id);
 
     if (!goalData) {
       return errorResponse('Goal not found', 404);
@@ -32,7 +32,7 @@ export const GET: RequestHandler = async (event) => {
 export const PATCH: RequestHandler = async (event) => {
   try {
     const user = await requireAuth(event);
-    const goalData = goal.findById(event.params.id);
+    const goalData = await goal.findById(event.params.id);
 
     if (!goalData) {
       return errorResponse('Goal not found', 404);
@@ -52,7 +52,7 @@ export const PATCH: RequestHandler = async (event) => {
       endDate?: string;
     }>(event.request);
 
-    const updated = goal.update(event.params.id, data);
+    const updated = await goal.update(event.params.id, data);
     return jsonResponse(updated);
   } catch (error) {
     return errorResponse((error as Error).message, error.message === 'Unauthorized' ? 401 : 400);
@@ -63,7 +63,7 @@ export const PATCH: RequestHandler = async (event) => {
 export const DELETE: RequestHandler = async (event) => {
   try {
     const user = await requireAuth(event);
-    const goalData = goal.findById(event.params.id);
+    const goalData = await goal.findById(event.params.id);
 
     if (!goalData) {
       return errorResponse('Goal not found', 404);
@@ -74,7 +74,7 @@ export const DELETE: RequestHandler = async (event) => {
       return errorResponse('Unauthorized', 403);
     }
 
-    goal.delete(event.params.id);
+    await goal.delete(event.params.id);
     return jsonResponse({ success: true });
   } catch (error) {
     return errorResponse((error as Error).message, 401);

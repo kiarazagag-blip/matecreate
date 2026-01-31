@@ -20,16 +20,16 @@ export const GET: RequestHandler = async (event) => {
     }
 
     // Verify goal ownership
-    const goalData = goal.findById(goalId);
+    const goalData = await goal.findById(goalId);
     if (!goalData || goalData.userId !== user.id) {
       return errorResponse('Goal not found or unauthorized', 403);
     }
 
     let attempts;
     if (startDate && endDate) {
-      attempts = actionAttempt.findByDateRange(goalId, startDate, endDate);
+      attempts = await actionAttempt.findByDateRange(goalId, startDate, endDate);
     } else {
-      attempts = actionAttempt.findByGoalId(goalId);
+      attempts = await actionAttempt.findByGoalId(goalId);
     }
 
     return jsonResponse({ actionAttempts: attempts });
@@ -57,12 +57,12 @@ export const POST: RequestHandler = async (event) => {
     }
 
     // Verify goal ownership
-    const goalData = goal.findById(data.goalId);
+    const goalData = await goal.findById(data.goalId);
     if (!goalData || goalData.userId !== user.id) {
       return errorResponse('Goal not found or unauthorized', 403);
     }
 
-    const attempt = actionAttempt.create(data.actionDefinitionId, data.goalId, {
+    const attempt = await actionAttempt.create(data.actionDefinitionId, data.goalId, {
       date: data.date,
       actualValue: data.actualValue,
       actualUnit: data.actualUnit,
