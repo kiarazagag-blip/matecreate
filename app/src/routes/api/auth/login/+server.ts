@@ -24,7 +24,7 @@ export const POST: RequestHandler = async ({ request }) => {
     }
 
     // Create session
-    const newSession = session.create(authenticatedUser.id);
+    const newSession = await session.create(authenticatedUser.id);
 
     // Return user data with session cookie
     return jsonResponse(
