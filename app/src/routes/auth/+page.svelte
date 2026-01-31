@@ -51,137 +51,125 @@
   }
 </script>
 
-<div class="gradient-bg">
-  <div class="gradient-blob blob-1"></div>
-  <div class="gradient-blob blob-2"></div>
-  <div class="gradient-blob blob-3"></div>
-  <div class="gradient-blob blob-4"></div>
-</div>
+<div class="auth-screen">
+  <div class="mountain-bg"></div>
 
-<div class="auth-container">
-  <div class="auth-card card">
-    <div class="logo-section">
-      <img src="/logo.png" alt="APEX" class="logo" />
-    </div>
+  <div class="auth-content">
+    <div class="auth-form">
+      <h1 class="auth-title">{mode === 'login' ? 'Login' : 'Sign Up'}</h1>
 
-    <div class="mode-toggle">
-      <button
-        class="mode-btn"
-        class:active={mode === 'login'}
-        on:click={() => {
-          mode = 'login';
-          error = '';
-        }}
-      >
-        Login
-      </button>
-      <button
-        class="mode-btn"
-        class:active={mode === 'signup'}
-        on:click={() => {
-          mode = 'signup';
-          error = '';
-        }}
-      >
-        Sign Up
-      </button>
-    </div>
+      <form on:submit|preventDefault={handleSubmit}>
+        <div class="input-group">
+          <label for="username">username</label>
+          <input
+            id="username"
+            type="text"
+            bind:value={username}
+            required
+            autocomplete="username"
+          />
+        </div>
 
-    <form on:submit|preventDefault={handleSubmit}>
-      <div class="input-group">
-        <label for="username">Username</label>
-        <input
-          id="username"
-          type="text"
-          bind:value={username}
-          required
-          autocomplete="username"
-          placeholder="Enter username"
-        />
-      </div>
+        <div class="input-group">
+          <label for="password">password</label>
+          <input
+            id="password"
+            type="password"
+            bind:value={password}
+            required
+            autocomplete={mode === 'login' ? 'current-password' : 'new-password'}
+          />
+        </div>
 
-      <div class="input-group">
-        <label for="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          bind:value={password}
-          required
-          autocomplete={mode === 'login' ? 'current-password' : 'new-password'}
-          placeholder="Enter password"
-        />
-      </div>
+        {#if error}
+          <div class="error">{error}</div>
+        {/if}
 
-      {#if error}
-        <div class="error">{error}</div>
+        <button type="submit" class="btn-submit" disabled={loading}>
+          {loading ? 'Processing...' : 'Get Started'}
+        </button>
+      </form>
+
+      {#if mode === 'login'}
+        <button
+          class="link-btn"
+          on:click={() => { mode = 'signup'; error = ''; }}
+        >
+          new user? sign up here
+        </button>
+      {:else}
+        <button
+          class="link-btn"
+          on:click={() => { mode = 'login'; error = ''; }}
+        >
+          already have an account? login here
+        </button>
       {/if}
-
-      <button type="submit" class="btn btn-primary submit-btn" disabled={loading}>
-        {loading ? 'Processing...' : mode === 'login' ? 'Login' : 'Create Account'}
-      </button>
-    </form>
+    </div>
   </div>
 </div>
 
 <style>
-  .auth-container {
-    min-height: 100vh;
+  .auth-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 2rem;
+    overflow: hidden;
+  }
+
+  .mountain-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/mountain-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .mountain-bg::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 50%, transparent 100%);
+  }
+
+  .auth-content {
     position: relative;
     z-index: 1;
-  }
-
-  .auth-card {
-    max-width: 420px;
     width: 100%;
-    padding: 3rem 2.5rem;
+    max-width: 450px;
+    padding: 2rem;
   }
 
-  .logo-section {
-    text-align: center;
-    margin-bottom: 2.5rem;
-  }
-
-  .logo {
-    width: 160px;
-    height: auto;
-  }
-
-  .mode-toggle {
+  .auth-form {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-    background: var(--bg-primary);
-    padding: 0.35rem;
-    border-radius: 50px;
+    flex-direction: column;
+    gap: 1.5rem;
   }
 
-  .mode-btn {
-    flex: 1;
-    background: transparent;
-    color: var(--text-secondary);
-    border: none;
-    padding: 0.85rem 1.5rem;
-    font-size: 0.9rem;
-    font-weight: 500;
-    cursor: pointer;
-    border-radius: 50px;
-    transition: all 0.2s ease;
-    font-family: inherit;
-  }
-
-  .mode-btn.active {
-    background: var(--btn-primary-bg);
-    color: var(--btn-primary-text);
+  .auth-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 1.5rem 0;
+    text-align: center;
   }
 
   form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.25rem;
   }
 
   .input-group {
@@ -191,52 +179,96 @@
   }
 
   label {
-    color: var(--text-primary);
+    color: #1a1a1a;
     font-size: 0.9rem;
     font-weight: 500;
+    text-transform: lowercase;
   }
 
   input {
-    padding: 1rem 1.25rem;
-    background: var(--bg-primary);
-    border: 1px solid #e5e5e7;
-    border-radius: 12px;
-    color: var(--text-primary);
+    padding: 1.1rem 1.25rem;
+    background: #1a1a1a;
+    border: none;
+    border-radius: 16px;
+    color: white;
     font-size: 1rem;
     font-family: inherit;
     transition: all 0.2s ease;
   }
 
   input::placeholder {
-    color: var(--text-tertiary);
+    color: rgba(255, 255, 255, 0.5);
   }
 
   input:focus {
     outline: none;
-    border-color: var(--text-primary);
-    background: #fafafa;
+    background: #2d2d2d;
   }
 
-  .submit-btn {
-    margin-top: 0.5rem;
-    padding: 1.1rem;
-    font-size: 0.95rem;
+  .btn-submit {
+    background: #1a1a1a;
+    color: white;
+    border: none;
+    padding: 1.2rem;
+    border-radius: 50px;
+    font-size: 1rem;
     font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    font-family: inherit;
+    margin-top: 0.5rem;
   }
 
-  .submit-btn:disabled {
+  .btn-submit:hover {
+    background: #2d2d2d;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-submit:active {
+    transform: translateY(0);
+  }
+
+  .btn-submit:disabled {
     opacity: 0.5;
     cursor: not-allowed;
     transform: none;
   }
 
+  .link-btn {
+    background: none;
+    border: none;
+    color: #6e6e73;
+    font-size: 0.9rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    text-align: center;
+    font-family: inherit;
+    transition: color 0.2s ease;
+  }
+
+  .link-btn:hover {
+    color: #1a1a1a;
+  }
+
   .error {
     padding: 0.85rem 1.25rem;
-    background: #fff5f5;
-    border: 1px solid #feb2b2;
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
     border-radius: 12px;
     color: #c53030;
     font-size: 0.9rem;
     text-align: center;
+  }
+
+  @media (max-width: 768px) {
+    .auth-title {
+      font-size: 2rem;
+    }
+
+    .auth-content {
+      padding: 1.5rem;
+    }
   }
 </style>

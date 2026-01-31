@@ -7,6 +7,7 @@
   let goals: Goal[] = [];
   let username = '';
   let loading = true;
+  let isLoggedIn = false;
   let showNewGoalForm = false;
   let newGoalName = '';
   let newGoalModule = 'fitness';
@@ -15,10 +16,13 @@
     const user = await getCurrentUser();
 
     if (!user) {
-      goto('/auth');
+      // Show splash screen instead of redirecting
+      loading = false;
+      isLoggedIn = false;
       return;
     }
 
+    isLoggedIn = true;
     username = user.username;
 
     // Fetch goals
@@ -31,7 +35,8 @@
       goals = data.goals;
     } else if (res.status === 401) {
       // Session expired
-      goto('/auth');
+      isLoggedIn = false;
+      loading = false;
       return;
     }
 
@@ -60,66 +65,83 @@
   }
 </script>
 
-<div class="gradient-bg">
-  <div class="gradient-blob blob-1"></div>
-  <div class="gradient-blob blob-2"></div>
-  <div class="gradient-blob blob-3"></div>
-  <div class="gradient-blob blob-4"></div>
-</div>
-
-<div class="container">
-  <header>
-    <div class="header-content">
-      <div class="logo-section">
-        <img src="/logo.png" alt="APEX" class="logo" />
+{#if !isLoggedIn && !loading}
+  <!-- Splash Screen -->
+  <div class="splash-screen">
+    <div class="mountain-bg"></div>
+    <div class="splash-content">
+      <div class="branding">
+        <h1 class="brand-name">APEX VIRTUS</h1>
+        <p class="tagline">discipline is key</p>
       </div>
-      {#if username}
-        <div class="user-section">
-          <span class="username">@{username}</span>
-          <button class="btn btn-secondary logout-btn" on:click={logout}>Logout</button>
+      <button class="btn-get-started" on:click={() => goto('/auth')}>
+        Get Started
+      </button>
+    </div>
+  </div>
+{:else}
+  <!-- Logged In View -->
+  <div class="gradient-bg">
+    <div class="gradient-blob blob-1"></div>
+    <div class="gradient-blob blob-2"></div>
+    <div class="gradient-blob blob-3"></div>
+    <div class="gradient-blob blob-4"></div>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <div class="logo-section">
+          <img src="/logo.png" alt="APEX" class="logo" />
+        </div>
+        {#if username}
+          <div class="user-section">
+            <span class="username">@{username}</span>
+            <button class="btn btn-secondary logout-btn" on:click={logout}>Logout</button>
+          </div>
+        {/if}
+      </div>
+    </header>
+
+    <main>
+      {#if loading}
+        <div class="loading">Loading...</div>
+      {:else if goals.length === 0}
+        <div class="empty-state card">
+          <h2>No goals yet</h2>
+          <p>Start tracking your progress with data-driven goals.</p>
+          <button class="btn btn-primary" on:click={() => (showNewGoalForm = true)}>
+            Create Your First Goal
+          </button>
+        </div>
+      {:else}
+        <div class="goals-header">
+          <h2>Your Goals</h2>
+          <button class="btn btn-primary" on:click={() => (showNewGoalForm = true)}>
+            + New Goal
+          </button>
+        </div>
+
+        <div class="goals-grid">
+          {#each goals as goal}
+            <a href="/goal/{goal.id}" class="goal-card card">
+              <div class="card-top">
+                <span class="module-badge">{goal.moduleType}</span>
+              </div>
+              <h3>{goal.name}</h3>
+              {#if goal.description}
+                <p class="goal-description">{goal.description}</p>
+              {/if}
+              <div class="card-footer">
+                <span class="view-link">View details →</span>
+              </div>
+            </a>
+          {/each}
         </div>
       {/if}
-    </div>
-  </header>
-
-  <main>
-    {#if loading}
-      <div class="loading">Loading...</div>
-    {:else if goals.length === 0}
-      <div class="empty-state card">
-        <h2>No goals yet</h2>
-        <p>Start tracking your progress with data-driven goals.</p>
-        <button class="btn btn-primary" on:click={() => (showNewGoalForm = true)}>
-          Create Your First Goal
-        </button>
-      </div>
-    {:else}
-      <div class="goals-header">
-        <h2>Your Goals</h2>
-        <button class="btn btn-primary" on:click={() => (showNewGoalForm = true)}>
-          + New Goal
-        </button>
-      </div>
-
-      <div class="goals-grid">
-        {#each goals as goal}
-          <a href="/goal/{goal.id}" class="goal-card card">
-            <div class="card-top">
-              <span class="module-badge">{goal.moduleType}</span>
-            </div>
-            <h3>{goal.name}</h3>
-            {#if goal.description}
-              <p class="goal-description">{goal.description}</p>
-            {/if}
-            <div class="card-footer">
-              <span class="view-link">View details →</span>
-            </div>
-          </a>
-        {/each}
-      </div>
-    {/if}
-  </main>
-</div>
+    </main>
+  </div>
+{/if}
 
 {#if showNewGoalForm}
   <div class="modal" on:click={() => (showNewGoalForm = false)}>
@@ -160,6 +182,112 @@
 {/if}
 
 <style>
+  /* Splash Screen */
+  .splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .mountain-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/mountain-bg.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  .mountain-bg::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.7) 50%, transparent 100%);
+  }
+
+  .splash-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    gap: 4rem;
+  }
+
+  .branding {
+    text-align: center;
+  }
+
+  .brand-name {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: 0.02em;
+  }
+
+  .tagline {
+    font-size: 1.1rem;
+    color: #6e6e73;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  .btn-get-started {
+    background: #1a1a1a;
+    color: white;
+    border: none;
+    padding: 1.2rem 4rem;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    font-family: inherit;
+  }
+
+  .btn-get-started:hover {
+    background: #2d2d2d;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-get-started:active {
+    transform: translateY(0);
+  }
+
+  @media (max-width: 768px) {
+    .brand-name {
+      font-size: 2.25rem;
+    }
+
+    .tagline {
+      font-size: 1rem;
+    }
+
+    .btn-get-started {
+      padding: 1.1rem 3rem;
+      font-size: 0.95rem;
+    }
+  }
+
+  /* Logged In View */
   .container {
     max-width: 1200px;
     margin: 0 auto;
