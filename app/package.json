@@ -10,11 +10,19 @@
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"postinstall": "prisma generate"
+		"postinstall": "prisma generate",
+		"build:mobile": "vite build && cap sync",
+		"sync:ios": "cap sync ios",
+		"sync:android": "cap sync android",
+		"open:ios": "cap open ios",
+		"open:android": "cap open android",
+		"ios": "npm run build:mobile && npm run open:ios",
+		"android": "npm run build:mobile && npm run open:android"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.0",
 		"@sveltejs/adapter-node": "^5.5.2",
+		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.50.1",
 		"@sveltejs/vite-plugin-svelte": "^6.2.4",
 		"svelte": "^5.48.2",
@@ -23,6 +31,10 @@
 		"vite": "^7.3.1"
 	},
 	"dependencies": {
+		"@capacitor/android": "^8.0.2",
+		"@capacitor/cli": "^8.0.2",
+		"@capacitor/core": "^8.0.2",
+		"@capacitor/ios": "^8.0.2",
 		"@prisma/client": "^6.1.0",
 		"@types/bcrypt": "^6.0.0",
 		"@types/cookie": "^0.6.0",

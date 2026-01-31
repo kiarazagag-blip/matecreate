@@ -11,6 +11,12 @@ data/
 /.svelte-kit
 /build
 
+# Capacitor
+# Note: You can commit ios/ and android/ if you make native customizations
+# For now, they're ignored as they can be regenerated with 'cap add ios/android'
+/ios
+/android
+
 # OS
 .DS_Store
 Thumbs.db
