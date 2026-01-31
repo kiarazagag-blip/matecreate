@@ -919,7 +919,7 @@
             id="sessionMetrics"
             bind:value={sessionMetrics}
             rows="2"
-            placeholder='{"weight": 185, "reps": 5, "sets": 3}'
+            placeholder={'{"weight": 185, "reps": 5, "sets": 3}'}
           ></textarea>
           <small class="input-hint">Optional: Enter metrics as JSON, e.g. {"weight": 185, "reps": 5}</small>
         </div>
