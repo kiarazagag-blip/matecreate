@@ -36,6 +36,26 @@
   let actionNotes = '';
   let selectedTargetId = '';
 
+  // Session form state
+  let showSessionForm = false;
+  let selectedMethodId = '';
+  let sessionTitle = '';
+  let sessionDate = new Date().toISOString().split('T')[0];
+  let sessionNotes = '';
+  let sessionMetrics = '';
+  let sessions: any[] = [];
+  let selectedMethodForSessions: any = null;
+
+  // Review form state
+  let showReviewForm = false;
+  let reviewPeriodStart = '';
+  let reviewPeriodEnd = '';
+  let reviewSummary = '';
+  let reviews: any[] = [];
+
+  // Metrics data
+  let metricsData: any = null;
+
   // Timeline calculations
   $: daysRemaining = data.goal.deadline
     ? Math.ceil((new Date(data.goal.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
@@ -222,6 +242,98 @@
       window.location.reload();
     }
   }
+
+  async function loadSessionsForMethod(methodId: string) {
+    selectedMethodId = methodId;
+    const method = data.methods.find((m) => m.id === methodId);
+    selectedMethodForSessions = method;
+
+    const res = await fetch(`/api/method-sessions?methodId=${methodId}`, {
+      credentials: 'include'
+    });
+
+    if (res.ok) {
+      const result = await res.json();
+      sessions = result.sessions || [];
+    }
+  }
+
+  async function logSession() {
+    let metrics = null;
+    if (sessionMetrics.trim()) {
+      try {
+        metrics = JSON.parse(sessionMetrics);
+      } catch (e) {
+        alert('Invalid JSON format for metrics. Use format: {"weight": 185, "reps": 5}');
+        return;
+      }
+    }
+
+    const res = await fetch('/api/method-sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        methodId: selectedMethodId,
+        date: sessionDate,
+        title: sessionTitle,
+        notes: sessionNotes || undefined,
+        metrics: metrics
+      })
+    });
+
+    if (res.ok) {
+      showSessionForm = false;
+      sessionTitle = '';
+      sessionDate = new Date().toISOString().split('T')[0];
+      sessionNotes = '';
+      sessionMetrics = '';
+      await loadSessionsForMethod(selectedMethodId);
+    }
+  }
+
+  async function loadReviews() {
+    const res = await fetch(`/api/reviews?goalId=${data.goal.id}`, {
+      credentials: 'include'
+    });
+
+    if (res.ok) {
+      const result = await res.json();
+      reviews = result.reviews || [];
+    }
+  }
+
+  async function createReview() {
+    const res = await fetch('/api/reviews', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+      body: JSON.stringify({
+        goalId: data.goal.id,
+        periodStart: reviewPeriodStart,
+        periodEnd: reviewPeriodEnd,
+        summary: reviewSummary || undefined
+      })
+    });
+
+    if (res.ok) {
+      showReviewForm = false;
+      reviewPeriodStart = '';
+      reviewPeriodEnd = '';
+      reviewSummary = '';
+      await loadReviews();
+    }
+  }
+
+  async function loadMetrics() {
+    const res = await fetch(`/api/metrics?goalId=${data.goal.id}&type=actions`, {
+      credentials: 'include'
+    });
+
+    if (res.ok) {
+      metricsData = await res.json();
+    }
+  }
 </script>
 
 <div class="gradient-bg">
@@ -280,24 +392,19 @@
 
   <div class="tabs">
     <button class="tab-btn" class:active={activeTab === 'overview'} on:click={() => (activeTab = 'overview')}>
-      <span class="tab-icon">📊</span>
-      <span class="tab-label">Overview</span>
+      Overview
     </button>
     <button class="tab-btn" class:active={activeTab === 'targets'} on:click={() => (activeTab = 'targets')}>
-      <span class="tab-icon">🎯</span>
-      <span class="tab-label">Targets</span>
+      Targets
     </button>
     <button class="tab-btn" class:active={activeTab === 'methods'} on:click={() => (activeTab = 'methods')}>
-      <span class="tab-icon">⚙️</span>
-      <span class="tab-label">Methods</span>
+      Methods
     </button>
     <button class="tab-btn" class:active={activeTab === 'actions'} on:click={() => (activeTab = 'actions')}>
-      <span class="tab-icon">📝</span>
-      <span class="tab-label">Actions</span>
+      Actions
     </button>
     <button class="tab-btn" class:active={activeTab === 'reviews'} on:click={() => (activeTab = 'reviews')}>
-      <span class="tab-icon">📋</span>
-      <span class="tab-label">Reviews</span>
+      Reviews
     </button>
   </div>
 
@@ -342,16 +449,13 @@
           <h3 class="card-title">Quick Add</h3>
           <div class="quick-actions">
             <button class="quick-action-btn" on:click={() => (showTargetForm = true)}>
-              <span class="qa-icon">🎯</span>
-              <span class="qa-label">Add Target</span>
+              Add Target
             </button>
             <button class="quick-action-btn" on:click={() => (showMethodForm = true)}>
-              <span class="qa-icon">⚙️</span>
-              <span class="qa-label">Add Method</span>
+              Add Method
             </button>
             <button class="quick-action-btn" on:click={() => (showActionForm = true)}>
-              <span class="qa-icon">📝</span>
-              <span class="qa-label">Log Action</span>
+              Log Action
             </button>
           </div>
         </div>
@@ -453,9 +557,54 @@
                 <button class="icon-btn" on:click={() => openEditMethod(method)}>⋯</button>
               </div>
               <p class="method-description">{method.description}</p>
+
+              <div class="method-actions">
+                <button
+                  class="btn btn-secondary"
+                  on:click={() => {
+                    loadSessionsForMethod(method.id);
+                    showSessionForm = true;
+                  }}
+                >
+                  + Log Session
+                </button>
+                <button
+                  class="btn btn-secondary"
+                  on:click={() => loadSessionsForMethod(method.id)}
+                >
+                  View Sessions ({sessions.filter(s => s.methodId === method.id).length || '...'})
+                </button>
+              </div>
             </div>
           {/each}
         </div>
+
+        {#if selectedMethodForSessions && sessions.length > 0}
+          <div class="sessions-section">
+            <h3 class="sessions-title">Sessions for {selectedMethodForSessions.name}</h3>
+            <div class="sessions-list">
+              {#each sessions as session}
+                <div class="card session-card">
+                  <div class="session-header">
+                    <h4>{session.title}</h4>
+                    <span class="session-date">{formatDate(session.date)}</span>
+                  </div>
+                  {#if session.notes}
+                    <p class="session-notes">{session.notes}</p>
+                  {/if}
+                  {#if session.metrics}
+                    <div class="session-metrics">
+                      <strong>Metrics:</strong>
+                      {#each Object.entries(session.metrics) as [key, value]}
+                        <span class="metric-badge">{key}: {value}</span>
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
+              {/each}
+            </div>
+          </div>
+        {/if}
       {/if}
     {/if}
 
@@ -499,11 +648,48 @@
     {#if activeTab === 'reviews'}
       <div class="section-header">
         <h2>Reviews</h2>
+        <button class="btn btn-primary" on:click={() => {showReviewForm = true; loadReviews();}}>
+          + Create Review
+        </button>
       </div>
 
-      <div class="empty-state card">
-        <p>Review system coming soon. Track failures and structured reflections.</p>
-      </div>
+      {#if reviews.length === 0}
+        <div class="empty-state card">
+          <p>No reviews yet. Create periodic reviews to track progress and reflect on failures.</p>
+          <button class="btn btn-primary" on:click={() => {showReviewForm = true; loadReviews();}}>
+            Create First Review
+          </button>
+        </div>
+      {:else}
+        <div class="reviews-list">
+          {#each reviews as review}
+            <div class="card review-card">
+              <div class="review-header">
+                <span class="review-period">
+                  {formatDate(review.periodStart)} - {formatDate(review.periodEnd)}
+                </span>
+              </div>
+              <div class="review-metrics">
+                {#if review.disciplineCompletionRate !== null}
+                  <div class="review-metric">
+                    <span class="metric-label">Completion Rate:</span>
+                    <span class="metric-value">{review.disciplineCompletionRate.toFixed(1)}%</span>
+                  </div>
+                {/if}
+                {#if review.averageExecutionMagnitude !== null}
+                  <div class="review-metric">
+                    <span class="metric-label">Avg Magnitude:</span>
+                    <span class="metric-value">{review.averageExecutionMagnitude.toFixed(1)}%</span>
+                  </div>
+                {/if}
+              </div>
+              {#if review.summary}
+                <p class="review-summary">{review.summary}</p>
+              {/if}
+            </div>
+          {/each}
+        </div>
+      {/if}
     {/if}
   </div>
 </div>
@@ -692,6 +878,106 @@
   </div>
 {/if}
 
+<!-- Session Form Modal -->
+{#if showSessionForm}
+  <div class="modal" on:click={() => (showSessionForm = false)}>
+    <div class="modal-content card" on:click|stopPropagation>
+      <h2>Log Training Session</h2>
+      {#if selectedMethodForSessions}
+        <p class="modal-subtitle">Method: {selectedMethodForSessions.name}</p>
+      {/if}
+      <form on:submit|preventDefault={logSession}>
+        <div class="input-group">
+          <label for="sessionTitle">Session Title</label>
+          <input
+            id="sessionTitle"
+            type="text"
+            bind:value={sessionTitle}
+            required
+            placeholder="e.g., Squat Day - Week 4"
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="sessionDate">Date</label>
+          <input id="sessionDate" type="date" bind:value={sessionDate} required />
+        </div>
+
+        <div class="input-group">
+          <label for="sessionNotes">Notes</label>
+          <textarea
+            id="sessionNotes"
+            bind:value={sessionNotes}
+            rows="3"
+            placeholder="How did the session go? Any observations?"
+          ></textarea>
+        </div>
+
+        <div class="input-group">
+          <label for="sessionMetrics">Metrics (JSON format)</label>
+          <textarea
+            id="sessionMetrics"
+            bind:value={sessionMetrics}
+            rows="2"
+            placeholder='{"weight": 185, "reps": 5, "sets": 3}'
+          ></textarea>
+          <small class="input-hint">Optional: Enter metrics as JSON, e.g. {"weight": 185, "reps": 5}</small>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" on:click={() => (showSessionForm = false)}>
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">Log Session</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{/if}
+
+<!-- Review Form Modal -->
+{#if showReviewForm}
+  <div class="modal" on:click={() => (showReviewForm = false)}>
+    <div class="modal-content card" on:click|stopPropagation>
+      <h2>Create Review</h2>
+      <form on:submit|preventDefault={createReview}>
+        <div class="form-row-responsive">
+          <div class="input-group">
+            <label for="reviewStart">Period Start</label>
+            <input id="reviewStart" type="date" bind:value={reviewPeriodStart} required />
+          </div>
+
+          <div class="input-group">
+            <label for="reviewEnd">Period End</label>
+            <input id="reviewEnd" type="date" bind:value={reviewPeriodEnd} required />
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="reviewSummary">Summary (Optional)</label>
+          <textarea
+            id="reviewSummary"
+            bind:value={reviewSummary}
+            rows="4"
+            placeholder="Reflect on this period. What went well? What needs adjustment?"
+          ></textarea>
+        </div>
+
+        <p class="modal-hint">
+          Metrics (completion rate, execution magnitude) will be automatically calculated from your action attempts in this period.
+        </p>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" on:click={() => (showReviewForm = false)}>
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">Create Review</button>
+        </div>
+      </form>
+    </div>
+  </div>
+{/if}
+
 <style>
   .container {
     max-width: 1200px;
@@ -838,9 +1124,6 @@
     border: 1px solid #e5e5e7;
     padding: 0.85rem 1.5rem;
     border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
     cursor: pointer;
     transition: all 0.2s ease;
     white-space: nowrap;
@@ -862,14 +1145,6 @@
     color: white;
     border-color: var(--text-primary);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
-
-  .tab-icon {
-    font-size: 1.1rem;
-  }
-
-  .tab-label {
-    font-size: 0.9rem;
   }
 
   .tab-content {
@@ -984,28 +1259,18 @@
     border: 1px solid #e5e5e7;
     padding: 1rem;
     border-radius: 12px;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    text-align: left;
+    text-align: center;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 0.95rem;
   }
 
   .quick-action-btn:hover {
     background: #e8e8ed;
     border-color: #d0d0d5;
     transform: translateX(4px);
-  }
-
-  .qa-icon {
-    font-size: 1.5rem;
-  }
-
-  .qa-label {
-    color: var(--text-primary);
-    font-weight: 500;
-    font-size: 0.95rem;
   }
 
   .method-preview h4 {
@@ -1308,5 +1573,168 @@
 
   .btn-danger:hover {
     background: #dc2626;
+  }
+
+  /* Method Sessions */
+  .method-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .method-actions .btn {
+    flex: 1;
+    font-size: 0.85rem;
+    padding: 0.65rem 1rem;
+  }
+
+  .sessions-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 2px solid #e5e5e7;
+  }
+
+  .sessions-title {
+    margin: 0 0 1.5rem 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .sessions-list {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .session-card {
+    border-left: 3px solid var(--text-primary);
+  }
+
+  .session-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 0.75rem;
+  }
+
+  .session-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .session-date {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+  }
+
+  .session-notes {
+    margin: 0 0 0.75rem 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+
+  .session-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .session-metrics strong {
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+  }
+
+  .metric-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    background: var(--bg-primary);
+    border: 1px solid #e5e5e7;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  /* Reviews */
+  .reviews-list {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .review-card {
+    border-left: 3px solid #667eea;
+  }
+
+  .review-header {
+    margin-bottom: 1rem;
+  }
+
+  .review-period {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .review-metrics {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--bg-primary);
+    border-radius: 8px;
+  }
+
+  .review-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .metric-label {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+  }
+
+  .metric-value {
+    color: var(--text-primary);
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .review-summary {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  /* Modal enhancements */
+  .modal-subtitle {
+    margin: -1rem 0 1.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+  }
+
+  .modal-hint {
+    margin: 0;
+    padding: 1rem;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .input-hint {
+    color: var(--text-tertiary);
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
   }
 </style>
